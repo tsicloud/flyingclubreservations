@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -19,6 +19,7 @@ function App() {
     { id: "4", tail_number: "N12345", color: "#3B82F6" }, // Blue
     { id: "5", tail_number: "N54321", color: "#F59E0B" }, // Amber
   ], []);
+  const calendarRef = useRef(null);
 
   useEffect(() => {
     async function loadReservations() {
@@ -57,27 +58,21 @@ function App() {
   );
 
   function handleSlotSelect(selectionInfo) {
-    let start = selectionInfo.startStr;
-    let end = selectionInfo.endStr;
+    let start = new Date(selectionInfo.startStr);
+    let end = new Date(selectionInfo.endStr);
 
-    if (start === end) {
-      const startDate = new Date(start);
-      startDate.setHours(startDate.getHours() + 2);
-      end = startDate.toISOString().slice(0, 16);
-    } else {
-      const startDate = new Date(start);
-      const endDate = new Date(end);
-      const diffInMinutes = (endDate - startDate) / (1000 * 60);
-      if (diffInMinutes < 60) {
-        startDate.setHours(startDate.getHours() + 1);
-        end = startDate.toISOString().slice(0, 16);
-      }
+    const diffInMinutes = (end - start) / (1000 * 60);
+
+    // If the user selected less than 2 hours, set default to 2 hours
+    if (diffInMinutes < 120) {
+      end = new Date(start);
+      end.setHours(start.getHours() + 2);
     }
 
     setFormData({
       airplane_id: "4",
-      start_time: start.slice(0, 16),
-      end_time: end.slice(0, 16),
+      start_time: start.toISOString().slice(0, 16),
+      end_time: end.toISOString().slice(0, 16),
     });
 
     setShowModal(true);
@@ -127,28 +122,13 @@ function App() {
       try {
         await deleteReservation(clickInfo.event.id);
 
-        // Wait 500 milliseconds before fetching updated reservations
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        const reservations = await fetchReservations();
-        const formattedEvents = reservations.map(res => {
-          const airplane = airplanes.find(p => p.tail_number === res.airplane_tail);
-          return {
-            id: res.id,
-            title: `${res.airplane_tail} - ${res.user_name}`,
-            start: res.start_time,
-            end: res.end_time,
-            backgroundColor: airplane ? airplane.color : '#3B82F6',
-            borderColor: airplane ? airplane.color : '#3B82F6',
-            textColor: 'white',
-            extendedProps: {
-              flightReview: res.flight_review,
-              airplane_tail: res.airplane_tail,
-              user_name: res.user_name,
-            },
-          };
-        });
-        setEvents(formattedEvents);
+        // Wait briefly then manually refetch events through FullCalendar API
+        setTimeout(() => {
+          const calendarApi = calendarRef.current?.getApi();
+          if (calendarApi) {
+            calendarApi.refetchEvents();
+          }
+        }, 500);
 
         alert('Reservation deleted successfully!');
       } catch (error) {
@@ -178,6 +158,7 @@ function App() {
         >
           <FullCalendar
             key={events.length}
+            ref={calendarRef}
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             initialView="timeGridWeek"
             headerToolbar={{
