@@ -1,0 +1,15 @@
+/* Additional custom styles for FullCalendar */
+.fc {
+    max-width: 100%;
+    margin: 0 auto;
+  }
+  
+  .fc .fc-button {
+    background-color: #2563eb;
+    border: none;
+    color: white;
+  }
+  
+  .fc .fc-button:hover {
+    background-color: #1e40af;
+  }
