@@ -81,7 +81,6 @@ function App() {
 
   async function handleSaveReservation() {
     const calendarApi = calendarRef.current?.getApi();
-    const previousViewType = calendarApi?.view.type;
     const previousDate = calendarApi?.getDate();
 
     try {
@@ -130,7 +129,6 @@ function App() {
   async function handleEventClick(clickInfo) {
     if (window.confirm(`Delete this reservation for ${clickInfo.event.title}?`)) {
       const calendarApi = calendarRef.current?.getApi();
-      const previousViewType = calendarApi?.view.type;
       const previousDate = calendarApi?.getDate();
 
       try {
