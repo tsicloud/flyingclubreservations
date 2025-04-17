@@ -1,5 +1,11 @@
 export async function onRequestGet(context) {
     const { env } = context;
+    console.log("env.DB", env.DB);
+
+    if (!env.DB) {
+      return new Response("D1 database not configured", { status: 500 });
+    }
+
     const { results } = await env.DB.prepare(
       `SELECT r.id, r.start_time, r.end_time, r.flight_review,
               u.name AS user_name, a.tail_number AS airplane_tail
@@ -9,6 +15,6 @@ export async function onRequestGet(context) {
        WHERE r.start_time >= datetime('now')
        ORDER BY r.start_time ASC`
     ).all();
-  
+
     return Response.json(results);
   }
