@@ -86,11 +86,11 @@
 
 /* Custom event styling */
 .calendar-event {
-  width: 90%;
-  margin-left: 10%;
+  width: 100%;
+  margin-left: 0;
   background-color: var(--event-bg, #3B82F6);
   color: white;
-  padding: 8px; /* Increased padding for better text spacing */
+  padding: 4px; /* Reduced padding for better alignment */
   border-radius: 4px;
   font-size: 12px;
 }
