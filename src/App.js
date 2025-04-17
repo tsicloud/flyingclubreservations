@@ -64,8 +64,8 @@ function App() {
 
     const diffInMinutes = (end - start) / (1000 * 60);
 
-    // If the user selected less than 2 hours, set default to 2 hours
-    if (diffInMinutes < 120) {
+    // If the user selected less than 30 minutes, set default to 2 hours
+    if (diffInMinutes < 30) {
       end = new Date(start);
       end.setHours(start.getHours() + 2);
     }
@@ -116,8 +116,8 @@ function App() {
       });
       setEvents(formattedEvents);
 
-      if (calendarApi && previousViewType && previousDate) {
-        calendarApi.changeView(previousViewType, previousDate);
+      if (calendarApi && previousDate) {
+        calendarApi.gotoDate(previousDate);
       }
 
       setShowModal(false);
@@ -159,8 +159,8 @@ function App() {
           });
           setEvents(formattedEvents);
 
-          if (calendarApi && previousViewType && previousDate) {
-            calendarApi.changeView(previousViewType, previousDate);
+          if (calendarApi && previousDate) {
+            calendarApi.gotoDate(previousDate);
           }
         }, 500);
 
