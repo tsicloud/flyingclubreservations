@@ -44,7 +44,7 @@ function App() {
       setEvents(formattedEvents);
     }
     loadReservations();
-  }, []);
+  }, [airplanes]);
 
   const eventContent = (eventInfo) => (
     <div className="flex flex-col text-sm p-2">
