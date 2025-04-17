@@ -3,7 +3,7 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { fetchReservations, createReservation } from './services/api';
+import { fetchReservations, createReservation, deleteReservation } from './services/api';
 import './App.css';
 import ReservationModal from './components/ReservationModal';
 
@@ -122,6 +122,35 @@ function App() {
     }
   }
 
+  async function handleEventClick(clickInfo) {
+    if (window.confirm(`Delete this reservation for ${clickInfo.event.title}?`)) {
+      try {
+        await deleteReservation(clickInfo.event.id);
+        const reservations = await fetchReservations();
+        const formattedEvents = reservations.map(res => {
+          const airplane = airplanes.find(p => p.tail_number === res.airplane_tail);
+          return {
+            id: res.id,
+            title: `${res.airplane_tail} - ${res.user_name}`,
+            start: res.start_time,
+            end: res.end_time,
+            backgroundColor: airplane ? airplane.color : '#3B82F6',
+            borderColor: airplane ? airplane.color : '#3B82F6',
+            textColor: 'white',
+            extendedProps: {
+              flightReview: res.flight_review,
+              airplane_tail: res.airplane_tail,
+              user_name: res.user_name,
+            },
+          };
+        });
+        setEvents(formattedEvents);
+      } catch (error) {
+        alert('Failed to delete reservation');
+      }
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       <header className="bg-blue-600 text-white p-4 rounded shadow">
@@ -153,15 +182,12 @@ function App() {
             select={handleSlotSelect}
             events={events}
             eventContent={eventContent}
-            slotMinTime="06:00:00"
-            slotMaxTime="22:00:00"
-            initialDate="2025-04-27"
             scrollTime="06:00:00"
             slotDuration="00:30:00"
             allDaySlot={false}
-            height="auto"
             contentHeight="auto"
             titleFormat={{ month: 'short', year: 'numeric' }}
+            eventClick={handleEventClick}
           />
         </div>
       </main>
