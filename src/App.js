@@ -1,38 +1,30 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import { fetchReservations, createReservation } from './services/api';
 import './App.css';
 
 function App() {
-  // Sample events to mimic the screenshot
-  const events = [
-    {
-      title: '3 Days Jordan Package Tours – JE',
-      start: '2025-04-27T19:00:00',
-      end: '2025-04-27T20:00:00',
-      extendedProps: { category: 'Packages', participants: 4 },
-    },
-    {
-      title: '3 Days Jordan Package Tours – JE',
-      start: '2025-04-28T07:00:00',
-      end: '2025-04-28T08:00:00',
-      extendedProps: { category: 'Packages', participants: 2 },
-    },
-    {
-      title: 'Hotel name',
-      start: '2025-04-30T07:00:00',
-      end: '2025-04-30T08:00:00',
-      extendedProps: { category: 'Hotel', participants: 4 },
-    },
-    {
-      title: 'Burj Khalifa tickets: levels 124 and 125',
-      start: '2025-04-28T07:00:00',
-      end: '2025-04-28T08:00:00',
-      extendedProps: { category: 'Activities', participants: 2 },
-    },
-  ];
+  const [events, setEvents] = useState([]);
+
+  useEffect(() => {
+    async function loadReservations() {
+      const reservations = await fetchReservations();
+      const formattedEvents = reservations.map(res => ({
+        id: res.id,
+        title: `${res.airplane_tail} - ${res.user_name}`,
+        start: res.start_time,
+        end: res.end_time,
+        extendedProps: {
+          flightReview: res.flight_review,
+        },
+      }));
+      setEvents(formattedEvents);
+    }
+    loadReservations();
+  }, []);
 
   // Event content customization to match screenshot
   const eventContent = (arg) => {
@@ -50,6 +42,39 @@ function App() {
     );
   };
 
+  async function handleSlotSelect(selectionInfo) {
+    const airplaneId = "some-airplane-id"; // TODO: replace with real airplane selection
+    const userId = "auth0|exampleuserid"; // TODO: replace with real Auth0 user ID
+
+    try {
+      const newReservation = {
+        airplane_id: airplaneId,
+        user_id: userId,
+        start_time: selectionInfo.startStr,
+        end_time: selectionInfo.endStr,
+        flight_review: false,
+      };
+      await createReservation(newReservation);
+      alert("Reservation created successfully!");
+
+      // Reload reservations
+      const reservations = await fetchReservations();
+      const formattedEvents = reservations.map(res => ({
+        id: res.id,
+        title: `${res.airplane_tail} - ${res.user_name}`,
+        start: res.start_time,
+        end: res.end_time,
+        extendedProps: {
+          flightReview: res.flight_review,
+        },
+      }));
+      setEvents(formattedEvents);
+    } catch (error) {
+      console.error("Failed to create reservation:", error);
+      alert("Failed to create reservation.");
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       <header className="bg-blue-600 text-white p-4 rounded shadow">
@@ -66,6 +91,7 @@ function App() {
           }}
           editable={true}
           selectable={true}
+          select={handleSlotSelect}
           events={events}
           eventContent={eventContent}
           slotMinTime="00:00:00"
