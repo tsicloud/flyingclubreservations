@@ -1,0 +1,7 @@
+name = "flyingclubreservations"
+compatibility_date = "2024-04-16"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "flying-club-db"
+database_id = "bd0a3c07-e433-4799-b92f-636d8ef5a1b7"
