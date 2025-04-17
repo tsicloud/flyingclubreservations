@@ -60,8 +60,8 @@ function App() {
   );
 
   function handleSlotSelect(selectionInfo) {
-    let start = new Date(selectionInfo.startStr);
-    let end = new Date(selectionInfo.endStr);
+    let start = selectionInfo.start; // Correct local time
+    let end = selectionInfo.end;
 
     const diffInMinutes = (end - start) / (1000 * 60);
 
@@ -70,10 +70,18 @@ function App() {
       end.setHours(start.getHours() + 2);
     }
 
+    const formatLocalDateTime = (date) => {
+      return date.getFullYear() + '-' +
+        String(date.getMonth() + 1).padStart(2, '0') + '-' +
+        String(date.getDate()).padStart(2, '0') + 'T' +
+        String(date.getHours()).padStart(2, '0') + ':' +
+        String(date.getMinutes()).padStart(2, '0');
+    };
+
     setFormData({
       airplane_id: "4",
-      start_time: start.toISOString().slice(0, 16),
-      end_time: end.toISOString().slice(0, 16),
+      start_time: formatLocalDateTime(start),
+      end_time: formatLocalDateTime(end),
     });
 
     setShowModal(true);
@@ -117,7 +125,9 @@ function App() {
       setEvents(formattedEvents);
 
       if (calendarApi && currentViewDate) {
-        calendarApi.gotoDate(currentViewDate);
+        setTimeout(() => {
+          calendarApi.gotoDate(currentViewDate);
+        }, 0);
       }
 
       setShowModal(false);
@@ -161,7 +171,9 @@ function App() {
           setEvents(formattedEvents);
 
           if (calendarApi && currentViewDate) {
-            calendarApi.gotoDate(currentViewDate);
+            setTimeout(() => {
+              calendarApi.gotoDate(currentViewDate);
+            }, 0);
           }
         }, 500);
       } catch (error) {
@@ -202,8 +214,8 @@ function App() {
             key={events.length}
             ref={calendarRef}
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          initialView="timeGridWeek"
-          timeZone="local"
+            initialView="timeGridWeek"
+            timeZone="local"
             headerToolbar={{
               left: 'prev today next',
               center: 'title',
