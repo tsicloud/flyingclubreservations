@@ -52,7 +52,7 @@ function App() {
   }, [airplanes]);
 
   const eventContent = (eventInfo) => (
-    <div className="calendar-event-container">
+    <div className="calendar-event">
       <div className="text-xs font-bold">{eventInfo.event.extendedProps.airplane_tail}</div>
       <div className="text-[10px]">{eventInfo.event.extendedProps.user_name}</div>
       {eventInfo.event.extendedProps.flightReview && (
@@ -240,16 +240,16 @@ function App() {
               }
               return { month: 'long', year: 'numeric' }; // month view
             }}
-            dayHeaderContent={(args) => {
+  dayHeaderContent={(args) => {
               return (
                 <button
+                  className="calendar-day-header"
                   onClick={() => {
                     const calendarApi = calendarRef.current?.getApi();
                     if (calendarApi) {
                       calendarApi.changeView('timeGridDay', args.date);
                     }
                   }}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
                 >
                   {args.text}
                 </button>
