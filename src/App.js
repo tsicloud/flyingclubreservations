@@ -254,7 +254,6 @@ function App() {
               return { month: 'long', year: 'numeric' }; // month view
             }}
             dayHeaderContent={(args) => {
-              const dateStr = args.date.toISOString().split('T')[0];
               return (
                 <button
                   onClick={() => {
