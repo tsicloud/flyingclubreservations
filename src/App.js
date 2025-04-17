@@ -51,7 +51,7 @@ function App() {
   }, [airplanes]);
 
   const eventContent = (eventInfo) => (
-    <div className="flex flex-col p-1">
+    <div className="flex flex-col p-1" style={{ width: '85%', marginLeft: 'auto' }}>
       <div className="text-xs font-bold text-gray-700">{eventInfo.event.extendedProps.airplane_tail}</div>
       <div className="text-[10px] text-gray-500">{eventInfo.event.extendedProps.user_name}</div>
       {eventInfo.event.extendedProps.flightReview && (
