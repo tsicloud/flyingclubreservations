@@ -214,7 +214,8 @@ function App() {
             key={events.length}
             ref={calendarRef}
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-            initialView="timeGridWeek"
+            initialView={forcedView}
+            initialDate={forcedDate}
             timeZone="local"
             headerToolbar={{
               left: 'prev today next',
@@ -232,16 +233,6 @@ function App() {
             allDaySlot={false}
             titleFormat={{ month: 'short', year: 'numeric' }}
             eventClick={handleEventClick}
-            datesSet={(arg) => {
-              if (pendingNavigation) {
-                console.log("Restoring pending navigation:", pendingNavigation);
-                const calendarApi = calendarRef.current?.getApi();
-                if (calendarApi) {
-                  calendarApi.changeView(pendingNavigation.view, pendingNavigation.date);
-                  setPendingNavigation(null);
-                }
-              }
-            }}
           />
         </div>
       </main>
