@@ -52,9 +52,19 @@ function App() {
   }, [airplanes]);
 
   const eventContent = (eventInfo) => (
-    <div className="flex flex-col p-1" style={{ width: '85%', marginLeft: 'auto' }}>
-      <div className="text-xs font-bold text-gray-700">{eventInfo.event.extendedProps.airplane_tail}</div>
-      <div className="text-[10px] text-gray-500">{eventInfo.event.extendedProps.user_name}</div>
+    <div
+      className="flex flex-col p-1 bg-opacity-90"
+      style={{
+        width: '90%',       // Make the event slightly narrower
+        marginLeft: '10%',  // Leave a 10% left margin for clicking
+        backgroundColor: eventInfo.backgroundColor || undefined,
+        color: 'white',
+        padding: '4px',
+        borderRadius: '4px',
+      }}
+    >
+      <div className="text-xs font-bold">{eventInfo.event.extendedProps.airplane_tail}</div>
+      <div className="text-[10px]">{eventInfo.event.extendedProps.user_name}</div>
       {eventInfo.event.extendedProps.flightReview && (
         <div className="text-[9px] text-red-400 mt-1">Flight Review</div>
       )}
@@ -210,7 +220,7 @@ function App() {
         />
         <div
           className="bg-white rounded-xl shadow-md overflow-hidden p-4 border border-gray-200"
-          style={{ height: '80vh', overflowY: 'scroll' }}
+          style={{ height: '80vh', overflowY: 'scroll', position: 'relative' }}
         >
           <FullCalendar
             key={events.length}
@@ -233,7 +243,33 @@ function App() {
             scrollTime="07:00:00"
             slotDuration="00:30:00"
             allDaySlot={false}
-            titleFormat={{ month: 'short', year: 'numeric' }}
+            titleFormat={(date) => {
+              const viewType = calendarRef.current?.getApi().view.type;
+              if (viewType === 'timeGridDay') {
+                return { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' };
+              }
+              if (viewType === 'timeGridWeek') {
+                return { month: 'short', day: 'numeric' }; // Show day/month in week view
+              }
+              return { month: 'long', year: 'numeric' }; // month view
+            }}
+            dayHeaderContent={(args) => {
+              const dateStr = args.date.toISOString().split('T')[0];
+              return (
+                <button
+                  onClick={() => {
+                    const calendarApi = calendarRef.current?.getApi();
+                    if (calendarApi) {
+                      calendarApi.changeView('timeGridDay', args.date);
+                    }
+                  }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
+                >
+                  {args.text}
+                </button>
+              );
+            }}
+            dayHeaderClassNames="sticky top-0 bg-white z-10"
             eventClick={handleEventClick}
           />
         </div>
