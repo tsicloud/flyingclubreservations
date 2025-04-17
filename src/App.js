@@ -15,6 +15,7 @@ function App() {
     start_time: '',
     end_time: '',
   });
+  const [notification, setNotification] = useState(null);
   const airplanes = useMemo(() => [
     { id: "4", tail_number: "N12345", color: "#3B82F6" }, // Blue
     { id: "5", tail_number: "N54321", color: "#F59E0B" }, // Amber
@@ -64,7 +65,6 @@ function App() {
 
     const diffInMinutes = (end - start) / (1000 * 60);
 
-    // If the user selected less than 30 minutes, set default to 2 hours
     if (diffInMinutes < 30) {
       end = new Date(start);
       end.setHours(start.getHours() + 2);
@@ -81,7 +81,7 @@ function App() {
 
   async function handleSaveReservation() {
     const calendarApi = calendarRef.current?.getApi();
-    const previousDate = calendarApi?.getDate();
+    const previousDate = calendarApi?.getCurrentData().currentDate;
 
     try {
       const newReservation = {
@@ -92,7 +92,8 @@ function App() {
         flight_review: false,
       };
       await createReservation(newReservation);
-      alert("Reservation created!");
+      setNotification("Reservation created!");
+      setTimeout(() => setNotification(null), 5000);
 
       const reservations = await fetchReservations();
       const formattedEvents = reservations.map(res => {
@@ -122,19 +123,21 @@ function App() {
       setShowModal(false);
     } catch (error) {
       console.error("Failed to save reservation:", error);
-      alert("Error saving reservation.");
+      setNotification("Error saving reservation.");
+      setTimeout(() => setNotification(null), 5000);
     }
   }
 
   async function handleEventClick(clickInfo) {
     if (window.confirm(`Delete this reservation for ${clickInfo.event.title}?`)) {
       const calendarApi = calendarRef.current?.getApi();
-      const previousDate = calendarApi?.getDate();
+      const previousDate = calendarApi?.getCurrentData().currentDate;
 
       try {
         await deleteReservation(clickInfo.event.id);
+        setNotification("Reservation deleted successfully!");
+        setTimeout(() => setNotification(null), 5000);
 
-        // Wait briefly then manually refetch events through FullCalendar API
         setTimeout(async () => {
           const reservations = await fetchReservations();
           const formattedEvents = reservations.map(res => {
@@ -161,17 +164,24 @@ function App() {
             calendarApi.gotoDate(previousDate);
           }
         }, 500);
-
-        alert('Reservation deleted successfully!');
       } catch (error) {
         console.error("Error deleting reservation:", error);
-        alert('Failed to delete reservation.');
+        setNotification('Failed to delete reservation.');
+        setTimeout(() => setNotification(null), 5000);
       }
     }
   }
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
+      {notification && (
+        <div className="fixed top-4 right-4 bg-green-500 text-white p-3 rounded shadow-lg z-50">
+          <div className="flex items-center justify-between">
+            <span>{notification}</span>
+            <button onClick={() => setNotification(null)} className="ml-4 text-white">&times;</button>
+          </div>
+        </div>
+      )}
       <header className="bg-blue-600 text-white p-4 rounded shadow">
         <h1 className="text-2xl font-bold">Flying Club Reservations</h1>
       </header>
