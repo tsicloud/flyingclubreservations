@@ -59,6 +59,27 @@ const CalendarPage = () => {
     setCalendarView(arg.view.type);
   };
 
+  const renderEventContent = (eventInfo) => {
+    const bgColor = eventInfo.event.extendedProps.color || '#2563eb';
+    return (
+      <div
+        style={{
+          backgroundColor: bgColor,
+          padding: '6px 10px',
+          borderRadius: '4px',
+          color: 'white',
+          textAlign: 'left',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        <strong>{eventInfo.event.title}</strong>
+        <div>Tail Number: {eventInfo.event.extendedProps.tailNumber}</div>
+      </div>
+    );
+  };
+
   return (
     <div className="p-4">
       <FullCalendar
@@ -76,18 +97,7 @@ const CalendarPage = () => {
         eventClick={handleEventClick}
         datesSet={handleDatesSet}
         ref={calendarRef}
-        eventContent={(eventInfo) => (
-          <div
-            style={{
-              backgroundColor: eventInfo.event.extendedProps.color || '#2563eb',
-              padding: '2px 6px',
-              borderRadius: '4px',
-              color: 'white',
-            }}
-          >
-            {eventInfo.event.title}
-          </div>
-        )}
+        eventContent={renderEventContent}
       />
       <ReservationModal
         isOpen={modalOpen}
