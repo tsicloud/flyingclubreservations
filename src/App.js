@@ -55,28 +55,6 @@ function App() {
       <header className="bg-blue-600 text-white p-4 rounded shadow">
         <h1 className="text-2xl font-bold">Flying Club Reservations</h1>
       </header>
-      <div className="mt-4 flex flex-wrap gap-4">
-        {/* Filter Dropdowns */}
-        <select className="border rounded px-2 py-1">
-          <option>Country</option>
-          <option>Italy</option>
-          <option>Spain</option>
-          <option>Israel</option>
-        </select>
-        <select className="border rounded px-2 py-1">
-          <option>Supplier</option>
-          <option>Travel HIT</option>
-        </select>
-        <select className="border rounded px-2 py-1">
-          <option>Select category</option>
-          <option>Packages</option>
-          <option>Hotel</option>
-          <option>Activities</option>
-        </select>
-        <select className="border rounded px-2 py-1">
-          <option>Select agents</option>
-        </select>
-      </div>
       <main className="mt-4">
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
