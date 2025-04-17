@@ -6,6 +6,10 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { fetchReservations, createReservation, deleteReservation } from './services/api';
 import './App.css';
 import ReservationModal from './components/ReservationModal';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Profile from './components/Profile';
+import CalendarPage from './components/CalendarPage';
+import SidebarLayout from './components/SidebarLayout';
 
 function formatReservations(reservations, airplanes) {
   return reservations.map(res => {
@@ -93,13 +97,13 @@ function App() {
 
   async function handleSaveReservation() {
     console.log("handleSaveReservation() CALLED!");
-  const calendarApi = calendarRef.current?.getApi();
-  const currentViewDate = calendarApi?.getDate();
-  const currentViewType = calendarApi?.view.type;
-  if (currentViewDate && currentViewType) {
-    setForcedView(currentViewType);
-    setForcedDate(currentViewDate);
-  }
+    const calendarApi = calendarRef.current?.getApi();
+    const currentViewDate = calendarApi?.getDate();
+    const currentViewType = calendarApi?.view.type;
+    if (currentViewDate && currentViewType) {
+      setForcedView(currentViewType);
+      setForcedDate(currentViewDate);
+    }
 
     try {
       const newReservation = {
@@ -117,7 +121,6 @@ function App() {
       const formattedEvents = formatReservations(reservations, airplanes);
       setEvents(formattedEvents);
 
-
       setShowModal(false);
     } catch (error) {
       console.error("Failed to save reservation:", error);
@@ -129,13 +132,13 @@ function App() {
   async function handleEventClick(clickInfo) {
     console.log("handleEventClick() CALLED!");
     if (window.confirm(`Delete this reservation for ${clickInfo.event.title}?`)) {
-    const calendarApi = calendarRef.current?.getApi();
-    const currentViewDate = calendarApi?.getDate();
-    const currentViewType = calendarApi?.view.type;
-    if (currentViewDate && currentViewType) {
-      setForcedView(currentViewType);
-      setForcedDate(currentViewDate);
-    }
+      const calendarApi = calendarRef.current?.getApi();
+      const currentViewDate = calendarApi?.getDate();
+      const currentViewType = calendarApi?.view.type;
+      if (currentViewDate && currentViewType) {
+        setForcedView(currentViewType);
+        setForcedDate(currentViewDate);
+      }
 
       try {
         await deleteReservation(clickInfo.event.id);
@@ -155,6 +158,7 @@ function App() {
   }
 
   return (
+    <Router>
     <div className="min-h-screen bg-gray-100 p-4">
       {notification && (
         <div className="fixed top-4 right-4 bg-green-500 text-white p-3 rounded shadow-lg z-50">
@@ -181,78 +185,15 @@ function App() {
           setFormData={setFormData}
           airplanes={airplanes}
         />
-        <div className="bg-white rounded-xl shadow-md overflow-hidden p-4 border border-gray-200 calendar-container">
-          <FullCalendar
-            ref={calendarRef}
-            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-            initialView={forcedView}
-            initialDate={forcedDate}
-            timeZone="local"
-            headerToolbar={{
-              left: 'prev today next',
-              center: 'title',
-              right: 'timeGridDay,timeGridWeek,dayGridMonth'
-            }}
-            editable={true}
-            selectable={true}
-            selectOverlap={true}
-            select={handleSlotSelect}
-            events={events}
-            eventContent={eventContent}
-            scrollTime="07:00:00"
-            slotDuration="00:30:00"
-            allDaySlot={false}
-            titleFormat={(date) => {
-              const viewType = calendarRef.current?.getApi()?.view?.type;
-              if (viewType === 'timeGridDay') {
-                return { weekday: 'long', month: 'long', day: 'numeric' };
-              }
-              if (viewType === 'timeGridWeek') {
-                return { month: 'short', day: 'numeric' };
-              }
-              return { month: 'long', year: 'numeric' };
-            }}
-  dayHeaderContent={(args) => {
-              return (
-                <button
-                  className="calendar-day-header"
-                  onClick={() => {
-                    const calendarApi = calendarRef.current?.getApi();
-                    if (calendarApi) {
-                      calendarApi.changeView('timeGridDay', args.date);
-                    }
-                  }}
-                >
-                  {args.text}
-                </button>
-              );
-            }}
-            dayHeaderClassNames="sticky top-0 bg-white z-10"
-            eventClick={handleEventClick}
-            dateClick={(info) => {
-              const start = info.date;
-              const end = new Date(start.getTime() + 2 * 60 * 60 * 1000); // +2 hours
-  
-              const formatLocalDateTime = (date) => {
-                return date.getFullYear() + '-' +
-                  String(date.getMonth() + 1).padStart(2, '0') + '-' +
-                  String(date.getDate()).padStart(2, '0') + 'T' +
-                  String(date.getHours()).padStart(2, '0') + ':' +
-                  String(date.getMinutes()).padStart(2, '0');
-              };
-  
-              setFormData({
-                airplane_id: "4",
-                start_time: formatLocalDateTime(start),
-                end_time: formatLocalDateTime(end),
-              });
-  
-              setShowModal(true);
-            }}
-          />
-        </div>
+        <Routes>
+          <Route element={<SidebarLayout />}>
+            <Route path="/" element={<CalendarPage />} />
+            <Route path="/profile" element={<Profile />} />
+          </Route>
+        </Routes>
       </main>
     </div>
+    </Router>
   );
 }
 
