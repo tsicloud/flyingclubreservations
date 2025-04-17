@@ -73,7 +73,7 @@ function App() {
     <div className="calendar-event">
       <div className="text-xs font-bold">{eventInfo.event.extendedProps.airplane_tail}</div>
       <div className="text-[10px]">{eventInfo.event.extendedProps.user_name}</div>
-      {eventInfo.event.extendedProps.flightReview && (
+      {eventInfo.event.extendedProps.flightReview === true && (
         <div className="text-[9px] text-red-400 mt-1">Flight Review</div>
       )}
     </div>
