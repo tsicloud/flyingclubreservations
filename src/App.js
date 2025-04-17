@@ -16,29 +16,38 @@ function App() {
     end_time: '',
   });
   const airplanes = [
-    { id: "4", tail_number: "N12345" },
-    { id: "5", tail_number: "N54321" }
+    { id: "4", tail_number: "N12345", color: "#3B82F6" }, // Blue
+    { id: "5", tail_number: "N54321", color: "#F59E0B" }, // Amber
   ];
 
   useEffect(() => {
     async function loadReservations() {
       const reservations = await fetchReservations();
-      const formattedEvents = reservations.map(res => ({
-        id: res.id,
-        title: `${res.airplane_tail} - ${res.user_name}`,
-        start: res.start_time,
-        end: res.end_time,
-        extendedProps: {
-          flightReview: res.flight_review,
-        },
-      }));
+      console.log("Reservations loaded:", reservations); // Added console log for debugging
+      const formattedEvents = reservations.map(res => {
+        const airplane = airplanes.find(p => p.tail_number === res.airplane_tail);
+        return {
+          id: res.id,
+          title: `${res.airplane_tail} - ${res.user_name}`,
+          start: res.start_time,
+          end: res.end_time,
+          backgroundColor: airplane ? airplane.color : '#3B82F6',
+          borderColor: airplane ? airplane.color : '#3B82F6',
+          textColor: 'white',
+          extendedProps: {
+            flightReview: res.flight_review,
+            airplane_tail: res.airplane_tail,
+            user_name: res.user_name,
+          },
+        };
+      });
       setEvents(formattedEvents);
     }
     loadReservations();
   }, []);
 
   const eventContent = (eventInfo) => (
-    <div className="flex flex-col text-sm p-1">
+    <div className="flex flex-col text-sm p-2">
       <div className="font-semibold">{eventInfo.event.extendedProps.airplane_tail}</div>
       <div className="text-xs text-gray-600">{eventInfo.event.extendedProps.user_name}</div>
       {eventInfo.event.extendedProps.flightReview && (
@@ -79,15 +88,23 @@ function App() {
       alert("Reservation created!");
 
       const reservations = await fetchReservations();
-      const formattedEvents = reservations.map(res => ({
-        id: res.id,
-        title: `${res.airplane_tail} - ${res.user_name}`,
-        start: res.start_time,
-        end: res.end_time,
-        extendedProps: {
-          flightReview: res.flight_review,
-        },
-      }));
+      const formattedEvents = reservations.map(res => {
+        const airplane = airplanes.find(p => p.tail_number === res.airplane_tail);
+        return {
+          id: res.id,
+          title: `${res.airplane_tail} - ${res.user_name}`,
+          start: res.start_time,
+          end: res.end_time,
+          backgroundColor: airplane ? airplane.color : '#3B82F6',
+          borderColor: airplane ? airplane.color : '#3B82F6',
+          textColor: 'white',
+          extendedProps: {
+            flightReview: res.flight_review,
+            airplane_tail: res.airplane_tail,
+            user_name: res.user_name,
+          },
+        };
+      });
       setEvents(formattedEvents);
 
       setShowModal(false);
@@ -102,7 +119,7 @@ function App() {
       <header className="bg-blue-600 text-white p-4 rounded shadow">
         <h1 className="text-2xl font-bold">Flying Club Reservations</h1>
       </header>
-      <main className="mt-4 bg-white p-6 rounded-lg shadow-lg">
+      <main className="mt-4">
         <ReservationModal
           isOpen={showModal}
           onClose={() => setShowModal(false)}
@@ -111,25 +128,25 @@ function App() {
           setFormData={setFormData}
           airplanes={airplanes}
         />
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="bg-white rounded-xl shadow-md overflow-hidden p-4">
           <FullCalendar
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             initialView="timeGridWeek"
             headerToolbar={{
-              left: 'prev,next today',
+              left: 'prev today next',
               center: 'title',
-              right: 'timeGridDay,timeGridWeek,dayGridMonth,dayGridYear'
+              right: 'timeGridWeek,dayGridMonth'
             }}
             editable={true}
             selectable={true}
             select={handleSlotSelect}
             events={events}
             eventContent={eventContent}
-            slotMinTime="00:00:00"
-            slotMaxTime="24:00:00"
+            slotMinTime="06:00:00"
+            slotMaxTime="22:00:00"
             initialDate="2025-04-27"
             scrollTime="06:00:00"
-            slotDuration="01:00:00"
+            slotDuration="00:30:00"
             allDaySlot={false}
             height="auto"
             contentHeight="auto"
