@@ -168,6 +168,11 @@ function App() {
       <header className="bg-blue-600 text-white p-4 rounded shadow">
         <h1 className="text-2xl font-bold">Flying Club Reservations</h1>
       </header>
+      {calendarRef.current?.getApi()?.view?.type === 'dayGridMonth' && (
+        <div className="text-xl font-semibold text-center my-4">
+          {calendarRef.current.getApi().view.currentStart.toLocaleString('default', { month: 'long', year: 'numeric' })}
+        </div>
+      )}
       <main className="mt-4">
         <ReservationModal
           isOpen={showModal}
@@ -200,14 +205,14 @@ function App() {
             slotDuration="00:30:00"
             allDaySlot={false}
             titleFormat={(date) => {
-              const viewType = calendarRef.current?.getApi().view.type;
+              const viewType = calendarRef.current?.getApi()?.view?.type;
               if (viewType === 'timeGridDay') {
-                return { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' };
+                return { weekday: 'long', month: 'long', day: 'numeric' };
               }
               if (viewType === 'timeGridWeek') {
-                return { month: 'short', day: 'numeric' }; // Show day/month in week view
+                return { month: 'short', day: 'numeric' };
               }
-              return { month: 'long', year: 'numeric' }; // month view
+              return { month: 'long', year: 'numeric' };
             }}
   dayHeaderContent={(args) => {
               return (
