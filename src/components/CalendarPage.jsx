@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useRef } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -13,7 +11,6 @@ const CalendarPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedStart, setSelectedStart] = useState(null);
   const [selectedEnd, setSelectedEnd] = useState(null);
-  const [calendarView, setCalendarView] = useState('timeGridWeek');
   const calendarRef = useRef(null);
 
   useEffect(() => {
@@ -49,7 +46,7 @@ const CalendarPage = () => {
     <div className="p-4">
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-        initialView={calendarView}
+        initialView={'timeGridWeek'}
         headerToolbar={{
           left: 'prev,next today',
           center: 'title',
