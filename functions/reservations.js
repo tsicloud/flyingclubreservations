@@ -55,7 +55,7 @@ export async function onRequestDelete(context) {
   try {
     const urlParts = new URL(context.request.url).pathname.split("/");
     const id = urlParts[urlParts.length - 1];
-
+    console.log("Parsed ID for deletion:", id);
     if (!id) {
       return new Response("Reservation ID is required", { status: 400 });
     }
