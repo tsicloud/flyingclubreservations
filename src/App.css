@@ -88,7 +88,6 @@
 .calendar-event {
   width: 100%;
   margin-left: 0;
-  background-color: var(--event-bg, #3B82F6);
   color: white;
   padding: 4px; /* Reduced padding for better alignment */
   border-radius: 4px;
