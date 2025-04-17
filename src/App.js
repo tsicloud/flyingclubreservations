@@ -126,10 +126,10 @@ function App() {
     if (window.confirm(`Delete this reservation for ${clickInfo.event.title}?`)) {
       try {
         await deleteReservation(clickInfo.event.id);
- 
+
         // Wait 500 milliseconds before fetching updated reservations
         await new Promise(resolve => setTimeout(resolve, 500));
- 
+
         const reservations = await fetchReservations();
         const formattedEvents = reservations.map(res => {
           const airplane = airplanes.find(p => p.tail_number === res.airplane_tail);
@@ -149,8 +149,11 @@ function App() {
           };
         });
         setEvents(formattedEvents);
+
+        alert('Reservation deleted successfully!');
       } catch (error) {
-        alert('Failed to delete reservation');
+        console.error("Error deleting reservation:", error);
+        alert('Failed to delete reservation.');
       }
     }
   }
@@ -186,10 +189,9 @@ function App() {
             select={handleSlotSelect}
             events={events}
             eventContent={eventContent}
-            scrollTime="06:00:00"
+            scrollTime="07:00:00"
             slotDuration="00:30:00"
             allDaySlot={false}
-            contentHeight="auto"
             titleFormat={{ month: 'short', year: 'numeric' }}
             eventClick={handleEventClick}
           />
