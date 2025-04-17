@@ -16,7 +16,6 @@ function App() {
     end_time: '',
   });
   const [notification, setNotification] = useState(null);
-  const [pendingNavigation, setPendingNavigation] = useState(null);
   const [forcedView, setForcedView] = useState('timeGridWeek');
   const [forcedDate, setForcedDate] = useState(new Date());
   const airplanes = useMemo(() => [
@@ -129,9 +128,6 @@ function App() {
       });
       setEvents(formattedEvents);
 
-      if (calendarApi && currentViewDate && currentViewType) {
-        setPendingNavigation({ date: currentViewDate, view: currentViewType });
-      }
 
       setShowModal(false);
     } catch (error) {
@@ -175,9 +171,6 @@ function App() {
         });
         setEvents(formattedEvents);
 
-        if (calendarApi && currentViewDate && currentViewType) {
-          setPendingNavigation({ date: currentViewDate, view: currentViewType });
-        }
       } catch (error) {
         console.error("Error deleting reservation:", error);
         setNotification('Failed to delete reservation.');
