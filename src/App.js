@@ -91,9 +91,13 @@ function App() {
 
   async function handleSaveReservation() {
     console.log("handleSaveReservation() CALLED!");
-    const calendarApi = calendarRef.current?.getApi();
-    const currentViewDate = calendarApi?.getDate();
-    const currentViewType = calendarApi?.view.type;
+  const calendarApi = calendarRef.current?.getApi();
+  const currentViewDate = calendarApi?.getDate();
+  const currentViewType = calendarApi?.view.type;
+  if (currentViewDate && currentViewType) {
+    setForcedView(currentViewType);
+    setForcedDate(currentViewDate);
+  }
 
     try {
       const newReservation = {
@@ -140,10 +144,13 @@ function App() {
   async function handleEventClick(clickInfo) {
     console.log("handleEventClick() CALLED!");
     if (window.confirm(`Delete this reservation for ${clickInfo.event.title}?`)) {
-      const calendarApi = calendarRef.current?.getApi();
-      const currentViewDate = calendarApi?.getDate();
-      const currentViewType = calendarApi?.view.type;
-      console.log("Captured view (delete):", currentViewType, "Captured date (delete):", currentViewDate);
+    const calendarApi = calendarRef.current?.getApi();
+    const currentViewDate = calendarApi?.getDate();
+    const currentViewType = calendarApi?.view.type;
+    if (currentViewDate && currentViewType) {
+      setForcedView(currentViewType);
+      setForcedDate(currentViewDate);
+    }
 
       try {
         await deleteReservation(clickInfo.event.id);
