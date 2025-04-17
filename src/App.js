@@ -64,6 +64,14 @@ function App() {
       const startDate = new Date(start);
       startDate.setHours(startDate.getHours() + 2);
       end = startDate.toISOString().slice(0, 16);
+    } else {
+      const startDate = new Date(start);
+      const endDate = new Date(end);
+      const diffInMinutes = (endDate - startDate) / (1000 * 60);
+      if (diffInMinutes < 60) {
+        startDate.setHours(startDate.getHours() + 1);
+        end = startDate.toISOString().slice(0, 16);
+      }
     }
 
     setFormData({
