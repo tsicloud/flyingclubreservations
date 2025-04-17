@@ -11,6 +11,8 @@ const CalendarPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedStart, setSelectedStart] = useState(null);
   const [selectedEnd, setSelectedEnd] = useState(null);
+  const [calendarView, setCalendarView] = useState('timeGridWeek');
+  const [calendarDate, setCalendarDate] = useState(new Date());
   const calendarRef = useRef(null);
 
   useEffect(() => {
@@ -32,6 +34,11 @@ const CalendarPage = () => {
       await deleteReservation(clickInfo.event.id);
       const updated = await fetchReservations();
       setReservations(updated);
+      const calendarApi = calendarRef.current?.getApi();
+      if (calendarApi) {
+        calendarApi.gotoDate(calendarDate);
+        calendarApi.changeView(calendarView);
+      }
     }
   };
 
@@ -40,13 +47,23 @@ const CalendarPage = () => {
     const updated = await fetchReservations();
     setReservations(updated);
     setModalOpen(false);
+    const calendarApi = calendarRef.current?.getApi();
+    if (calendarApi) {
+      calendarApi.gotoDate(calendarDate);
+      calendarApi.changeView(calendarView);
+    }
+  };
+
+  const handleDatesSet = (arg) => {
+    setCalendarDate(arg.start);
+    setCalendarView(arg.view.type);
   };
 
   return (
     <div className="p-4">
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-        initialView={'timeGridWeek'}
+        initialView="timeGridWeek"
         headerToolbar={{
           left: 'prev,next today',
           center: 'title',
@@ -57,7 +74,20 @@ const CalendarPage = () => {
         events={reservations}
         select={handleDateSelect}
         eventClick={handleEventClick}
+        datesSet={handleDatesSet}
         ref={calendarRef}
+        eventContent={(eventInfo) => (
+          <div
+            style={{
+              backgroundColor: eventInfo.event.extendedProps.color || '#2563eb',
+              padding: '2px 6px',
+              borderRadius: '4px',
+              color: 'white',
+            }}
+          >
+            {eventInfo.event.title}
+          </div>
+        )}
       />
       <ReservationModal
         isOpen={modalOpen}
