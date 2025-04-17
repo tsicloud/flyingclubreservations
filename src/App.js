@@ -125,9 +125,11 @@ function App() {
       setEvents(formattedEvents);
 
       if (calendarApi && currentViewDate) {
-        setTimeout(() => {
-          calendarApi.gotoDate(currentViewDate);
-        }, 0);
+        requestAnimationFrame(() => {
+          if (calendarApi && currentViewDate) {
+            calendarApi.gotoDate(currentViewDate);
+          }
+        });
       }
 
       setShowModal(false);
@@ -171,9 +173,11 @@ function App() {
           setEvents(formattedEvents);
 
           if (calendarApi && currentViewDate) {
-            setTimeout(() => {
-              calendarApi.gotoDate(currentViewDate);
-            }, 0);
+            requestAnimationFrame(() => {
+              if (calendarApi && currentViewDate) {
+                calendarApi.gotoDate(currentViewDate);
+              }
+            });
           }
         }, 500);
       } catch (error) {
