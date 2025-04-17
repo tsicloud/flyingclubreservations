@@ -81,7 +81,7 @@ function App() {
 
   async function handleSaveReservation() {
     const calendarApi = calendarRef.current?.getApi();
-    const previousDate = calendarApi?.getCurrentData().currentDate;
+    const currentViewDate = calendarApi?.getDate();
 
     try {
       const newReservation = {
@@ -116,8 +116,8 @@ function App() {
       });
       setEvents(formattedEvents);
 
-      if (calendarApi && previousDate) {
-        calendarApi.gotoDate(previousDate);
+      if (calendarApi && currentViewDate) {
+        calendarApi.gotoDate(currentViewDate);
       }
 
       setShowModal(false);
@@ -131,7 +131,7 @@ function App() {
   async function handleEventClick(clickInfo) {
     if (window.confirm(`Delete this reservation for ${clickInfo.event.title}?`)) {
       const calendarApi = calendarRef.current?.getApi();
-      const previousDate = calendarApi?.getCurrentData().currentDate;
+      const currentViewDate = calendarApi?.getDate();
 
       try {
         await deleteReservation(clickInfo.event.id);
@@ -160,8 +160,8 @@ function App() {
           });
           setEvents(formattedEvents);
 
-          if (calendarApi && previousDate) {
-            calendarApi.gotoDate(previousDate);
+          if (calendarApi && currentViewDate) {
+            calendarApi.gotoDate(currentViewDate);
           }
         }, 500);
       } catch (error) {
@@ -202,7 +202,8 @@ function App() {
             key={events.length}
             ref={calendarRef}
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-            initialView="timeGridWeek"
+          initialView="timeGridWeek"
+          timeZone="local"
             headerToolbar={{
               left: 'prev today next',
               center: 'title',
