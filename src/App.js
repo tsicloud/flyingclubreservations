@@ -7,6 +7,25 @@ import { fetchReservations, createReservation, deleteReservation } from './servi
 import './App.css';
 import ReservationModal from './components/ReservationModal';
 
+function formatReservations(reservations, airplanes) {
+  return reservations.map(res => {
+    const airplane = airplanes.find(p => p.tail_number === res.airplane_tail);
+    return {
+      id: res.id,
+      title: `${res.airplane_tail} - ${res.user_name}`,
+      start: res.start_time,
+      end: res.end_time,
+      allDay: false,
+      className: airplane ? `event-airplane-${airplane.id}` : 'event-default',
+      extendedProps: {
+        flightReview: res.flight_review,
+        airplane_tail: res.airplane_tail,
+        user_name: res.user_name,
+      },
+    };
+  });
+}
+
 function App() {
   const [events, setEvents] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -110,22 +129,7 @@ function App() {
       setTimeout(() => setNotification(null), 5000);
 
       const reservations = await fetchReservations();
-      const formattedEvents = reservations.map(res => {
-        const airplane = airplanes.find(p => p.tail_number === res.airplane_tail);
-        return {
-          id: res.id,
-          title: `${res.airplane_tail} - ${res.user_name}`,
-          start: res.start_time,
-          end: res.end_time,
-          allDay: false,
-          className: airplane ? `event-airplane-${airplane.id}` : 'event-default',
-          extendedProps: {
-            flightReview: res.flight_review,
-            airplane_tail: res.airplane_tail,
-            user_name: res.user_name,
-          },
-        };
-      });
+      const formattedEvents = formatReservations(reservations, airplanes);
       setEvents(formattedEvents);
 
 
@@ -154,22 +158,7 @@ function App() {
         setTimeout(() => setNotification(null), 5000);
 
         const reservations = await fetchReservations();
-        const formattedEvents = reservations.map(res => {
-          const airplane = airplanes.find(p => p.tail_number === res.airplane_tail);
-          return {
-            id: res.id,
-            title: `${res.airplane_tail} - ${res.user_name}`,
-            start: res.start_time,
-            end: res.end_time,
-            allDay: false,
-          className: airplane ? `event-airplane-${airplane.id}` : 'event-default',
-            extendedProps: {
-              flightReview: res.flight_review,
-              airplane_tail: res.airplane_tail,
-              user_name: res.user_name,
-            },
-          };
-        });
+        const formattedEvents = formatReservations(reservations, airplanes);
         setEvents(formattedEvents);
 
       } catch (error) {
