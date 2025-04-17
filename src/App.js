@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -15,10 +15,10 @@ function App() {
     start_time: '',
     end_time: '',
   });
-  const airplanes = [
+  const airplanes = useMemo(() => [
     { id: "4", tail_number: "N12345", color: "#3B82F6" }, // Blue
     { id: "5", tail_number: "N54321", color: "#F59E0B" }, // Amber
-  ];
+  ], []);
 
   useEffect(() => {
     async function loadReservations() {
