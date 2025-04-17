@@ -161,7 +161,6 @@ function App() {
             allDaySlot={false}
             height="auto"
             contentHeight="auto"
-            dayHeaderFormat={{ weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }}
             titleFormat={{ month: 'short', year: 'numeric' }}
           />
         </div>
