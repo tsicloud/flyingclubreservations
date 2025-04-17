@@ -144,6 +144,7 @@ function App() {
     if (window.confirm(`Delete this reservation for ${clickInfo.event.title}?`)) {
       const calendarApi = calendarRef.current?.getApi();
       const currentViewDate = calendarApi?.getDate();
+      console.log("Captured currentViewDate (delete):", currentViewDate);
 
       try {
         await deleteReservation(clickInfo.event.id);
@@ -174,6 +175,7 @@ function App() {
 
           if (calendarApi && currentViewDate) {
             requestAnimationFrame(() => {
+              console.log("Attempting to gotoDate (delete):", currentViewDate);
               if (calendarApi && currentViewDate) {
                 calendarApi.gotoDate(currentViewDate);
               }
@@ -227,6 +229,7 @@ function App() {
             }}
             editable={true}
             selectable={true}
+            selectOverlap={true}
             select={handleSlotSelect}
             events={events}
             eventContent={eventContent}
