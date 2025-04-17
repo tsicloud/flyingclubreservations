@@ -48,22 +48,7 @@ function App() {
     async function loadReservations() {
       const reservations = await fetchReservations();
       console.log("Reservations loaded:", reservations); // Added console log for debugging
-      const formattedEvents = reservations.map(res => {
-        const airplane = airplanes.find(p => p.tail_number === res.airplane_tail);
-        return {
-          id: res.id,
-          title: `${res.airplane_tail} - ${res.user_name}`,
-          start: res.start_time,
-          end: res.end_time,
-          allDay: false,
-          className: airplane ? `event-airplane-${airplane.id}` : 'event-default',
-          extendedProps: {
-            flightReview: res.flight_review,
-            airplane_tail: res.airplane_tail,
-            user_name: res.user_name,
-          },
-        };
-      });
+      const formattedEvents = formatReservations(reservations, airplanes);
       setEvents(formattedEvents);
     }
     loadReservations();
