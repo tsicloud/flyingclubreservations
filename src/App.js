@@ -126,6 +126,10 @@ function App() {
     if (window.confirm(`Delete this reservation for ${clickInfo.event.title}?`)) {
       try {
         await deleteReservation(clickInfo.event.id);
+ 
+        // Wait 500 milliseconds before fetching updated reservations
+        await new Promise(resolve => setTimeout(resolve, 500));
+ 
         const reservations = await fetchReservations();
         const formattedEvents = reservations.map(res => {
           const airplane = airplanes.find(p => p.tail_number === res.airplane_tail);
