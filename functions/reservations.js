@@ -7,7 +7,7 @@ export async function onRequestGet(context) {
     }
 
     const { results } = await env.DB.prepare(
-      `SELECT r.id, r.start_time, r.end_time, r.flight_review,
+      `SELECT r.id, r.start_time, r.end_time,
               u.name AS user_name, a.tail_number AS airplane_tail
        FROM reservations r
        JOIN users u ON r.user_id = u.id
