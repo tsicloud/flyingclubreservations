@@ -36,9 +36,7 @@ function App() {
           start: res.start_time,
           end: res.end_time,
           allDay: false,
-          backgroundColor: airplane ? airplane.color : '#3B82F6',
-          borderColor: airplane ? airplane.color : '#3B82F6',
-          textColor: 'white',
+          className: airplane ? `event-airplane-${airplane.id}` : 'event-default',
           extendedProps: {
             flightReview: res.flight_review,
             airplane_tail: res.airplane_tail,
@@ -120,9 +118,7 @@ function App() {
           start: res.start_time,
           end: res.end_time,
           allDay: false,
-          backgroundColor: airplane ? airplane.color : '#3B82F6',
-          borderColor: airplane ? airplane.color : '#3B82F6',
-          textColor: 'white',
+          className: airplane ? `event-airplane-${airplane.id}` : 'event-default',
           extendedProps: {
             flightReview: res.flight_review,
             airplane_tail: res.airplane_tail,
@@ -166,9 +162,7 @@ function App() {
             start: res.start_time,
             end: res.end_time,
             allDay: false,
-            backgroundColor: airplane ? airplane.color : '#3B82F6',
-            borderColor: airplane ? airplane.color : '#3B82F6',
-            textColor: 'white',
+          className: airplane ? `event-airplane-${airplane.id}` : 'event-default',
             extendedProps: {
               flightReview: res.flight_review,
               airplane_tail: res.airplane_tail,
