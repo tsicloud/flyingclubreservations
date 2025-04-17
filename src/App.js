@@ -146,7 +146,7 @@ function App() {
             headerToolbar={{
               left: 'prev today next',
               center: 'title',
-              right: 'timeGridWeek,dayGridMonth'
+              right: 'timeGridDay,timeGridWeek,dayGridMonth'
             }}
             editable={true}
             selectable={true}
