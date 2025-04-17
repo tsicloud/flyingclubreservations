@@ -5,9 +5,20 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { fetchReservations, createReservation } from './services/api';
 import './App.css';
+import ReservationModal from './components/ReservationModal';
 
 function App() {
   const [events, setEvents] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({
+    airplane_id: '',
+    start_time: '',
+    end_time: '',
+  });
+  const airplanes = [
+    { id: "4", tail_number: "N12345" },
+    { id: "5", tail_number: "N54321" }
+  ];
 
   useEffect(() => {
     async function loadReservations() {
@@ -42,22 +53,37 @@ function App() {
     );
   };
 
-  async function handleSlotSelect(selectionInfo) {
-    const airplaneId = "4"; // Real airplane ID for N12345
-    const userId = "auth0|user1"; // Real user ID for John Doe
+  function handleSlotSelect(selectionInfo) {
+    let start = selectionInfo.startStr;
+    let end = selectionInfo.endStr;
 
+    if (start === end) {
+      const startDate = new Date(start);
+      startDate.setHours(startDate.getHours() + 2);
+      end = startDate.toISOString().slice(0, 16);
+    }
+
+    setFormData({
+      airplane_id: "4",
+      start_time: start.slice(0, 16),
+      end_time: end.slice(0, 16),
+    });
+
+    setShowModal(true);
+  }
+
+  async function handleSaveReservation() {
     try {
       const newReservation = {
-        airplane_id: airplaneId,
-        user_id: userId,
-        start_time: selectionInfo.startStr,
-        end_time: selectionInfo.endStr,
+        airplane_id: formData.airplane_id,
+        user_id: "auth0|user1",
+        start_time: formData.start_time,
+        end_time: formData.end_time,
         flight_review: false,
       };
       await createReservation(newReservation);
-      alert("Reservation created successfully!");
+      alert("Reservation created!");
 
-      // Reload reservations
       const reservations = await fetchReservations();
       const formattedEvents = reservations.map(res => ({
         id: res.id,
@@ -69,9 +95,11 @@ function App() {
         },
       }));
       setEvents(formattedEvents);
+
+      setShowModal(false);
     } catch (error) {
-      console.error("Failed to create reservation:", error);
-      alert("Failed to create reservation.");
+      console.error("Failed to save reservation:", error);
+      alert("Error saving reservation.");
     }
   }
 
@@ -81,6 +109,14 @@ function App() {
         <h1 className="text-2xl font-bold">Flying Club Reservations</h1>
       </header>
       <main className="mt-4">
+        <ReservationModal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          onSave={handleSaveReservation}
+          formData={formData}
+          setFormData={setFormData}
+          airplanes={airplanes}
+        />
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           initialView="timeGridWeek"
