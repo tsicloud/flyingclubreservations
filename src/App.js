@@ -1,8 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 function CalendarPage() {
-  const [calendarView] = useState('timeGridWeek');
-
   return (
     <div>
       {/* Calendar rendering logic */}
