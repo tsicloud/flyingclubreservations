@@ -38,7 +38,7 @@ export async function deleteReservation(reservationId) {
     if (!response.ok) {
       throw new Error("Failed to delete reservation");
     }
-    return await response.json();
+    return;
   } catch (error) {
     console.error("Error deleting reservation:", error);
     throw error;

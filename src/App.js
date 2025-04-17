@@ -32,6 +32,7 @@ function App() {
           title: `${res.airplane_tail} - ${res.user_name}`,
           start: res.start_time,
           end: res.end_time,
+          allDay: false,
           backgroundColor: airplane ? airplane.color : '#3B82F6',
           borderColor: airplane ? airplane.color : '#3B82F6',
           textColor: 'white',
@@ -79,6 +80,10 @@ function App() {
   }
 
   async function handleSaveReservation() {
+    const calendarApi = calendarRef.current?.getApi();
+    const previousViewType = calendarApi?.view.type;
+    const previousDate = calendarApi?.getDate();
+
     try {
       const newReservation = {
         airplane_id: formData.airplane_id,
@@ -98,6 +103,7 @@ function App() {
           title: `${res.airplane_tail} - ${res.user_name}`,
           start: res.start_time,
           end: res.end_time,
+          allDay: false,
           backgroundColor: airplane ? airplane.color : '#3B82F6',
           borderColor: airplane ? airplane.color : '#3B82F6',
           textColor: 'white',
@@ -110,6 +116,10 @@ function App() {
       });
       setEvents(formattedEvents);
 
+      if (calendarApi && previousViewType && previousDate) {
+        calendarApi.changeView(previousViewType, previousDate);
+      }
+
       setShowModal(false);
     } catch (error) {
       console.error("Failed to save reservation:", error);
@@ -119,14 +129,38 @@ function App() {
 
   async function handleEventClick(clickInfo) {
     if (window.confirm(`Delete this reservation for ${clickInfo.event.title}?`)) {
+      const calendarApi = calendarRef.current?.getApi();
+      const previousViewType = calendarApi?.view.type;
+      const previousDate = calendarApi?.getDate();
+
       try {
         await deleteReservation(clickInfo.event.id);
 
         // Wait briefly then manually refetch events through FullCalendar API
-        setTimeout(() => {
-          const calendarApi = calendarRef.current?.getApi();
-          if (calendarApi) {
-            calendarApi.refetchEvents();
+        setTimeout(async () => {
+          const reservations = await fetchReservations();
+          const formattedEvents = reservations.map(res => {
+            const airplane = airplanes.find(p => p.tail_number === res.airplane_tail);
+            return {
+              id: res.id,
+              title: `${res.airplane_tail} - ${res.user_name}`,
+              start: res.start_time,
+              end: res.end_time,
+              allDay: false,
+              backgroundColor: airplane ? airplane.color : '#3B82F6',
+              borderColor: airplane ? airplane.color : '#3B82F6',
+              textColor: 'white',
+              extendedProps: {
+                flightReview: res.flight_review,
+                airplane_tail: res.airplane_tail,
+                user_name: res.user_name,
+              },
+            };
+          });
+          setEvents(formattedEvents);
+
+          if (calendarApi && previousViewType && previousDate) {
+            calendarApi.changeView(previousViewType, previousDate);
           }
         }, 500);
 
