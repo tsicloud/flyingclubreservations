@@ -1,15 +1,80 @@
-/* Additional custom styles for FullCalendar */
+/* FullCalendar container */
 .fc {
     max-width: 100%;
     margin: 0 auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   
+  /* Toolbar buttons (Day, Week, Month, Year) */
   .fc .fc-button {
-    background-color: #2563eb;
+    background-color: #e5e7eb;
     border: none;
-    color: white;
+    color: #374151;
+    border-radius: 4px;
+    margin: 0 2px;
   }
   
   .fc .fc-button:hover {
-    background-color: #1e40af;
+    background-color: #d1d5db;
+  }
+  
+  .fc .fc-button.fc-button-active {
+    background-color: #ef4444; /* Red for active tab, matching screenshot */
+    color: white;
+  }
+  
+  /* Day headers (e.g., Sun 27 Aug 2023) */
+  .fc .fc-col-header-cell {
+    background-color: #f3f4f6;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  
+  /* Time slots */
+  .fc .fc-timegrid-slot {
+    height: 2.5rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  /* Event cards */
+  .fc .fc-event {
+    border: none !important;
+    margin: 2px;
+  }
+  
+  /* Month view events */
+  .fc .fc-daygrid-day {
+    padding: 4px;
+  }
+  
+  .fc .fc-daygrid-day-frame {
+    min-height: 100px;
+  }
+  
+  /* Ensure events in month view match the card style */
+  .fc .fc-daygrid-event {
+    white-space: normal !important;
+    margin: 2px;
+  }
+  
+  /* Scrollbar styling for time views */
+  .fc-scroller {
+    scrollbar-width: thin;
+  }
+  
+  .fc-scroller::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .fc-scroller::-webkit-scrollbar-thumb {
+    background-color: #d1d5db;
+    border-radius: 4px;
+  }
+  
+  .fc-scroller::-webkit-scrollbar-track {
+    background: #f3f4f6;
   }
