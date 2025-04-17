@@ -17,6 +17,7 @@ function formatReservations(reservations, airplanes) {
       end: res.end_time,
       allDay: false,
       className: airplane ? `event-airplane-${airplane.id}` : 'event-default',
+      backgroundColor: airplane ? airplane.color : '#3B82F6', // Ensure color displays in month view
       extendedProps: {
         flightReview: res.flight_review,
         airplane_tail: res.airplane_tail,
@@ -240,6 +241,26 @@ function App() {
             }}
             dayHeaderClassNames="sticky top-0 bg-white z-10"
             eventClick={handleEventClick}
+            dateClick={(info) => {
+              const start = info.date;
+              const end = new Date(start.getTime() + 2 * 60 * 60 * 1000); // +2 hours
+  
+              const formatLocalDateTime = (date) => {
+                return date.getFullYear() + '-' +
+                  String(date.getMonth() + 1).padStart(2, '0') + '-' +
+                  String(date.getDate()).padStart(2, '0') + 'T' +
+                  String(date.getHours()).padStart(2, '0') + ':' +
+                  String(date.getMinutes()).padStart(2, '0');
+              };
+  
+              setFormData({
+                airplane_id: "4",
+                start_time: formatLocalDateTime(start),
+                end_time: formatLocalDateTime(end),
+              });
+  
+              setShowModal(true);
+            }}
           />
         </div>
       </main>
