@@ -16,6 +16,7 @@ function App() {
     end_time: '',
   });
   const [notification, setNotification] = useState(null);
+  const [pendingNavigation, setPendingNavigation] = useState(null);
   const airplanes = useMemo(() => [
     { id: "4", tail_number: "N12345", color: "#3B82F6" }, // Blue
     { id: "5", tail_number: "N54321", color: "#F59E0B" }, // Amber
@@ -88,9 +89,10 @@ function App() {
   }
 
   async function handleSaveReservation() {
-  console.log("handleSaveReservation() CALLED!");
-  const calendarApi = calendarRef.current?.getApi();
+    console.log("handleSaveReservation() CALLED!");
+    const calendarApi = calendarRef.current?.getApi();
     const currentViewDate = calendarApi?.getDate();
+    const currentViewType = calendarApi?.view.type;
 
     try {
       const newReservation = {
@@ -125,12 +127,8 @@ function App() {
       });
       setEvents(formattedEvents);
 
-      if (calendarApi && currentViewDate) {
-        setTimeout(() => {
-          requestAnimationFrame(() => {
-            calendarApi.gotoDate(currentViewDate);
-          });
-        }, 100);
+      if (calendarApi && currentViewDate && currentViewType) {
+        setPendingNavigation({ date: currentViewDate, view: currentViewType });
       }
 
       setShowModal(false);
@@ -142,48 +140,42 @@ function App() {
   }
 
   async function handleEventClick(clickInfo) {
-  console.log("handleEventClick() CALLED!");
-  if (window.confirm(`Delete this reservation for ${clickInfo.event.title}?`)) {
+    console.log("handleEventClick() CALLED!");
+    if (window.confirm(`Delete this reservation for ${clickInfo.event.title}?`)) {
       const calendarApi = calendarRef.current?.getApi();
       const currentViewDate = calendarApi?.getDate();
-      console.log("Captured currentViewDate (delete):", currentViewDate);
+      const currentViewType = calendarApi?.view.type;
+      console.log("Captured view (delete):", currentViewType, "Captured date (delete):", currentViewDate);
 
       try {
         await deleteReservation(clickInfo.event.id);
         setNotification("Reservation deleted successfully!");
         setTimeout(() => setNotification(null), 5000);
 
-        setTimeout(async () => {
-          const reservations = await fetchReservations();
-          const formattedEvents = reservations.map(res => {
-            const airplane = airplanes.find(p => p.tail_number === res.airplane_tail);
-            return {
-              id: res.id,
-              title: `${res.airplane_tail} - ${res.user_name}`,
-              start: res.start_time,
-              end: res.end_time,
-              allDay: false,
-              backgroundColor: airplane ? airplane.color : '#3B82F6',
-              borderColor: airplane ? airplane.color : '#3B82F6',
-              textColor: 'white',
-              extendedProps: {
-                flightReview: res.flight_review,
-                airplane_tail: res.airplane_tail,
-                user_name: res.user_name,
-              },
-            };
-          });
-          setEvents(formattedEvents);
+        const reservations = await fetchReservations();
+        const formattedEvents = reservations.map(res => {
+          const airplane = airplanes.find(p => p.tail_number === res.airplane_tail);
+          return {
+            id: res.id,
+            title: `${res.airplane_tail} - ${res.user_name}`,
+            start: res.start_time,
+            end: res.end_time,
+            allDay: false,
+            backgroundColor: airplane ? airplane.color : '#3B82F6',
+            borderColor: airplane ? airplane.color : '#3B82F6',
+            textColor: 'white',
+            extendedProps: {
+              flightReview: res.flight_review,
+              airplane_tail: res.airplane_tail,
+              user_name: res.user_name,
+            },
+          };
+        });
+        setEvents(formattedEvents);
 
-          if (calendarApi && currentViewDate) {
-            requestAnimationFrame(() => {
-              console.log("Attempting to gotoDate (delete):", currentViewDate);
-              if (calendarApi && currentViewDate) {
-                calendarApi.gotoDate(currentViewDate);
-              }
-            });
-          }
-        }, 500);
+        if (calendarApi && currentViewDate && currentViewType) {
+          setPendingNavigation({ date: currentViewDate, view: currentViewType });
+        }
       } catch (error) {
         console.error("Error deleting reservation:", error);
         setNotification('Failed to delete reservation.');
@@ -240,6 +232,16 @@ function App() {
             allDaySlot={false}
             titleFormat={{ month: 'short', year: 'numeric' }}
             eventClick={handleEventClick}
+            datesSet={(arg) => {
+              if (pendingNavigation) {
+                console.log("Restoring pending navigation:", pendingNavigation);
+                const calendarApi = calendarRef.current?.getApi();
+                if (calendarApi) {
+                  calendarApi.changeView(pendingNavigation.view, pendingNavigation.date);
+                  setPendingNavigation(null);
+                }
+              }
+            }}
           />
         </div>
       </main>
