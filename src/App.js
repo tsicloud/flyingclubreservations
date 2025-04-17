@@ -17,7 +17,6 @@ function formatReservations(reservations, airplanes) {
       end: res.end_time,
       allDay: false,
       className: airplane ? `event-airplane-${airplane.id}` : 'event-default',
-      backgroundColor: airplane ? airplane.color : '#3B82F6', // Ensure color displays in month view
       extendedProps: {
         flightReview: res.flight_review,
         airplane_tail: res.airplane_tail,
@@ -184,7 +183,6 @@ function App() {
         />
         <div className="bg-white rounded-xl shadow-md overflow-hidden p-4 border border-gray-200 calendar-container">
           <FullCalendar
-            key={events.length}
             ref={calendarRef}
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             initialView={forcedView}

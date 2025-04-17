@@ -45,7 +45,7 @@
     border: none !important;
     margin: 2px;
 }
-  
+
 /* Month view events */
 .fc .fc-daygrid-day {
     padding: 4px;
@@ -62,7 +62,6 @@
     background-color: var(--event-bg, #3B82F6) !important;
     color: white !important;
     border-radius: 4px;
-    font-size: 12px;
 }
 
 /* Scrollbar styling for time views */
