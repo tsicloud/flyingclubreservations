@@ -78,3 +78,31 @@
   .fc-scroller::-webkit-scrollbar-track {
     background: #f3f4f6;
   }
+
+/* Custom event styling */
+.calendar-event {
+  width: 90%;
+  margin-left: 10%;
+  background-color: var(--event-bg, #3B82F6);
+  color: white;
+  padding: 4px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+/* Custom day header button styling */
+.calendar-day-header {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  color: #1f2937; /* Tailwind dark gray */
+}
+
+/* Sticky header styling */
+.sticky-day-header {
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 10;
+}

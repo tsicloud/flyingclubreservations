@@ -52,17 +52,7 @@ function App() {
   }, [airplanes]);
 
   const eventContent = (eventInfo) => (
-    <div
-      className="flex flex-col p-1 bg-opacity-90"
-      style={{
-        width: '90%',       // Make the event slightly narrower
-        marginLeft: '10%',  // Leave a 10% left margin for clicking
-        backgroundColor: eventInfo.backgroundColor || undefined,
-        color: 'white',
-        padding: '4px',
-        borderRadius: '4px',
-      }}
-    >
+    <div className="calendar-event-container">
       <div className="text-xs font-bold">{eventInfo.event.extendedProps.airplane_tail}</div>
       <div className="text-[10px]">{eventInfo.event.extendedProps.user_name}</div>
       {eventInfo.event.extendedProps.flightReview && (
@@ -218,10 +208,7 @@ function App() {
           setFormData={setFormData}
           airplanes={airplanes}
         />
-        <div
-          className="bg-white rounded-xl shadow-md overflow-hidden p-4 border border-gray-200"
-          style={{ height: '80vh', overflowY: 'scroll', position: 'relative' }}
-        >
+        <div className="bg-white rounded-xl shadow-md overflow-hidden p-4 border border-gray-200 calendar-container">
           <FullCalendar
             key={events.length}
             ref={calendarRef}
