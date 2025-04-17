@@ -43,8 +43,8 @@ function App() {
   };
 
   async function handleSlotSelect(selectionInfo) {
-    const airplaneId = "some-airplane-id"; // TODO: replace with real airplane selection
-    const userId = "auth0|exampleuserid"; // TODO: replace with real Auth0 user ID
+    const airplaneId = "4"; // Real airplane ID for N12345
+    const userId = "auth0|user1"; // Real user ID for John Doe
 
     try {
       const newReservation = {
