@@ -177,6 +177,7 @@ function App() {
           style={{ height: '80vh', overflowY: 'scroll' }}
         >
           <FullCalendar
+            key={events.length}
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             initialView="timeGridWeek"
             headerToolbar={{
