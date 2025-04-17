@@ -59,9 +59,10 @@
 .fc .fc-daygrid-event {
     white-space: normal !important;
     margin: 2px;
-    background-color: var(--event-bg, #3B82F6) !important;
     color: white !important;
     border-radius: 4px;
+    padding: 4px 6px;
+    font-size: 12px;
 }
 
 /* Scrollbar styling for time views */
