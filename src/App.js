@@ -47,11 +47,11 @@ function App() {
   }, [airplanes]);
 
   const eventContent = (eventInfo) => (
-    <div className="flex flex-col text-sm p-2">
-      <div className="font-semibold">{eventInfo.event.extendedProps.airplane_tail}</div>
-      <div className="text-xs text-gray-600">{eventInfo.event.extendedProps.user_name}</div>
+    <div className="flex flex-col p-1">
+      <div className="text-xs font-bold text-gray-700">{eventInfo.event.extendedProps.airplane_tail}</div>
+      <div className="text-[10px] text-gray-500">{eventInfo.event.extendedProps.user_name}</div>
       {eventInfo.event.extendedProps.flightReview && (
-        <div className="text-[10px] text-red-500 mt-1">Flight Review</div>
+        <div className="text-[9px] text-red-400 mt-1">Flight Review</div>
       )}
     </div>
   );
@@ -136,7 +136,10 @@ function App() {
           setFormData={setFormData}
           airplanes={airplanes}
         />
-        <div className="bg-white rounded-xl shadow-md overflow-hidden p-4">
+        <div
+          className="bg-white rounded-xl shadow-md overflow-hidden p-4 border border-gray-200"
+          style={{ height: '80vh', overflowY: 'scroll' }}
+        >
           <FullCalendar
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             initialView="timeGridWeek"
