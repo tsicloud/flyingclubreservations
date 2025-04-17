@@ -17,6 +17,8 @@ function App() {
   });
   const [notification, setNotification] = useState(null);
   const [pendingNavigation, setPendingNavigation] = useState(null);
+  const [forcedView, setForcedView] = useState('timeGridWeek');
+  const [forcedDate, setForcedDate] = useState(new Date());
   const airplanes = useMemo(() => [
     { id: "4", tail_number: "N12345", color: "#3B82F6" }, // Blue
     { id: "5", tail_number: "N54321", color: "#F59E0B" }, // Amber
