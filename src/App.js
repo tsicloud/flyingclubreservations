@@ -125,11 +125,11 @@ function App() {
       setEvents(formattedEvents);
 
       if (calendarApi && currentViewDate) {
-        requestAnimationFrame(() => {
-          if (calendarApi && currentViewDate) {
+        setTimeout(() => {
+          requestAnimationFrame(() => {
             calendarApi.gotoDate(currentViewDate);
-          }
-        });
+          });
+        }, 100);
       }
 
       setShowModal(false);
