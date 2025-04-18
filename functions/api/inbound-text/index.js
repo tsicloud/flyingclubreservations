@@ -33,7 +33,7 @@ Message: "${message}"
   const extractedText = aiResponse.response;
 
   // Try to find the JSON part
-  const jsonMatch = extractedText.match(/```json([\s\S]*?)```/);
+  const jsonMatch = extractedText.match(/```([\s\S]*?)```/);
 
   let reservationData = null;
 
