@@ -50,7 +50,7 @@ TODAY'S DATE: ${todayISO}
 MESSAGE: "${message}"
 `;
 
-  const aiResponse = await env.AI.run("@cf/meta/mistral-7b-instruct-v0.2", {
+  const aiResponse = await env.AI.run("@cf/mistral/mistral-7b-instruct-v0.1", {
     prompt
   });
 
