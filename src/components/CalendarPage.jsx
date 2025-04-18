@@ -88,12 +88,15 @@ const CalendarPage = () => {
     setModalOpen(true);
   };
 
-  const handleEventClick = async (clickInfo) => {
-    if (window.confirm(`Are you sure you want to delete this reservation?`)) {
-      await deleteReservation(clickInfo.event.id);
-      const updated = await fetchReservations();
-      setReservations(formatReservations(updated));
-    }
+  const handleEventClick = (clickInfo) => {
+    setFormData({
+      id: clickInfo.event.id,
+      start_time: clickInfo.event.start,
+      end_time: clickInfo.event.end,
+      airplane_id: clickInfo.event.extendedProps.airplaneId,
+      notes: clickInfo.event.extendedProps.notes || '',
+    });
+    setModalOpen(true);
   };
 
   const handleEventDrop = async (dropInfo) => {
@@ -133,11 +136,25 @@ const CalendarPage = () => {
         airplane_id: airplaneId,
         notes: notes || '',
       });
+      // Short delay to ensure database update is complete
+      await new Promise(resolve => setTimeout(resolve, 300));
       const updated = await fetchReservations();
       setReservations(formatReservations(updated));
       setModalOpen(false);
     } catch (error) {
       console.error('Failed to save reservation:', error);
+    }
+  };
+
+  const handleReservationDelete = async (reservationId) => {
+    try {
+      await deleteReservation(reservationId);
+      await new Promise(resolve => setTimeout(resolve, 300));
+      const updated = await fetchReservations();
+      setReservations(formatReservations(updated));
+      setModalOpen(false);
+    } catch (error) {
+      console.error('Failed to delete reservation:', error);
     }
   };
 
@@ -179,6 +196,11 @@ const CalendarPage = () => {
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView={calendarView}
         initialDate={calendarDate}
+        viewDidMount={() => {
+          if (calendarRef.current) {
+            calendarRef.current.getApi().changeView(calendarView, calendarDate);
+          }
+        }}
         headerToolbar={{
           left: 'prev,next today',
           center: 'title',
@@ -198,6 +220,7 @@ const CalendarPage = () => {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         onSave={handleReservationSave}
+        onDelete={handleReservationDelete}
         formData={formData}
         setFormData={setFormData}
       />

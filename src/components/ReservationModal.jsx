@@ -11,7 +11,7 @@ const formatDateForInput = (date) => {
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
 
-export default function ReservationModal({ isOpen, onClose, onSave, formData = {}, setFormData }) {
+export default function ReservationModal({ isOpen, onClose, onSave, onDelete, formData = {}, setFormData }) {
   const [airplanes, setAirplanes] = useState([]);
 
   useEffect(() => {
@@ -99,6 +99,30 @@ export default function ReservationModal({ isOpen, onClose, onSave, formData = {
         </div>
 
         <div className="flex justify-end space-x-2">
+          {formData.id && (
+            <button
+              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              onClick={async () => {
+                if (confirm('Are you sure you want to delete this reservation?')) {
+                  try {
+                    const response = await fetch(`/api/reservations/${formData.id}`, {
+                      method: 'DELETE',
+                    });
+                    if (!response.ok) {
+                      throw new Error('Failed to delete reservation');
+                    }
+                    await onDelete();
+                    onClose();
+                  } catch (error) {
+                    console.error(error);
+                    alert('Error deleting reservation. Please try again.');
+                  }
+                }
+              }}
+            >
+              Delete
+            </button>
+          )}
           <button
             className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
             onClick={onClose}
@@ -115,27 +139,31 @@ export default function ReservationModal({ isOpen, onClose, onSave, formData = {
 
               const payload = {
                 airplane_id: formData.airplane_id,
-                user_id: formData.user_id || 'auth0|user1', // fallback for development without Auth0
+                user_id: formData.user_id ?? 'auth0|user1',
                 start_time: formData.start_time,
                 end_time: formData.end_time,
                 flight_review: formData.flight_review || false,
                 notes: formData.notes || '',
+                ...(formData.id && { id: formData.id }), // Include id if editing
               };
 
               try {
-                const response = await fetch('/api/reservations', {
-                  method: formData.id ? 'PUT' : 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(payload),
-                });
+                const response = await fetch(
+                  formData.id ? `/api/reservations/${formData.id}` : '/api/reservations',
+                  {
+                    method: formData.id ? 'PUT' : 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                  }
+                );
 
                 if (!response.ok) {
                   throw new Error('Failed to save reservation');
                 }
 
-                onSave(); // Optionally re-fetch reservations after saving
+                await onSave(); // Ensure save completes before closing
                 onClose();
               } catch (error) {
                 console.error(error);
