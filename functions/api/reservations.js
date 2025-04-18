@@ -5,7 +5,12 @@ export async function onRequestGet(context) {
     }
 
     const { results } = await env.DB.prepare(
-        `SELECT r.id, r.start_time, r.end_time, r.flight_review, r.notes,
+        `SELECT r.id,
+                r.airplane_id,
+                r.start_time,
+                r.end_time,
+                r.flight_review,
+                r.notes,
                 u.name AS user_name, 
                 a.tail_number AS airplane_tail,
                 a.color AS airplane_color

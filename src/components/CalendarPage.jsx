@@ -11,8 +11,8 @@ const formatReservations = (data) =>
   data.map(r => ({
     id: r.id,
     title: r.user_name || 'Reservation',
-    start: r.start_time.endsWith('Z') ? r.start_time : r.start_time + ':00Z',
-    end:   r.end_time.endsWith('Z')   ? r.end_time   : r.end_time   + ':00Z',
+    start: new Date(r.start_time),
+    end:   new Date(r.end_time),
     color: r.airplane_color || '#2563eb',
     extendedProps: {
       airplaneId: r.airplane_id.toString(),
