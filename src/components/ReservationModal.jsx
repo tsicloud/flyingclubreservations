@@ -42,7 +42,7 @@ export default function ReservationModal({ isOpen, onClose, onSave, onDelete, fo
       if (!formData.airplane_id && airplanes.length > 0) {
         setFormData((prev) => ({
           ...prev,
-          airplane_id: airplanes[0]?.id || '',
+          airplane_id: airplanes[0]?.id.toString() || '',
         }));
       }
     }
@@ -58,14 +58,14 @@ export default function ReservationModal({ isOpen, onClose, onSave, onDelete, fo
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">Airplane</label>
           <select
-            value={formData.airplane_id}
+            value={formData.airplane_id?.toString() || ''}
             onChange={(e) => setFormData({ ...formData, airplane_id: e.target.value })}
             className="w-full border rounded p-2"
           >
             <option value="" disabled>Select an airplane</option>
             {airplanes.length > 0 ? (
-              airplanes.map((plane) => (
-                <option key={plane.id} value={plane.id}>
+                airplanes.map((plane) => (
+                <option key={plane.id} value={plane.id.toString()}>
                   {plane.tail_number}
                 </option>
               ))

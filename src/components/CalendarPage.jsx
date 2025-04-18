@@ -6,42 +6,36 @@ import interactionPlugin from '@fullcalendar/interaction';
 import ReservationModal from './ReservationModal';
 import { fetchReservations, createReservation, deleteReservation } from '../services/api';
 
+// Map raw reservation data into FullCalendar event objects
+const formatReservations = (data) =>
+  data.map(r => ({
+    id: r.id,
+    title: r.user_name || 'Reservation',
+    start: r.start_time.endsWith('Z') ? r.start_time : r.start_time + ':00Z',
+    end:   r.end_time.endsWith('Z')   ? r.end_time   : r.end_time   + ':00Z',
+    color: r.airplane_color || '#2563eb',
+    extendedProps: {
+      airplaneId: r.airplane_id.toString(),
+      tailNumber: r.airplane_tail || 'N/A',
+      phoneNumber: r.phone_number,
+      notes: r.notes,
+      complianceStatus: r.compliance_status,
+    },
+  }));
+
+// Custom hook to manage fetch/create/update/delete
 function useReservations() {
   const [events, setEvents] = useState([]);
-  useEffect(() => {
-    reload();
-  }, []);
-
+  useEffect(() => { reload(); }, []);
   const reload = async () => {
     try {
       const data = await fetchReservations();
       setEvents(formatReservations(data));
-    } catch (error) {
-      console.error("Error loading reservations:", error);
-    }
+    } catch (e) { console.error("Error loading reservations", e); }
   };
-
-  const createOrUpdate = async (payload) => {
-    try {
-      await createReservation(payload);
-      await reload();
-    } catch (error) {
-      console.error("Error saving reservation:", error);
-      throw error;
-    }
-  };
-
-  const remove = async (id) => {
-    try {
-      await deleteReservation(id);
-      await reload();
-    } catch (error) {
-      console.error("Error deleting reservation:", error);
-      throw error;
-    }
-  };
-
-  return { events, reload, createOrUpdate, remove };
+  const createOrUpdate = async payload => { await createReservation(payload); await reload(); };
+  const remove = async id => { await deleteReservation(id); await reload(); };
+  return { events, createOrUpdate, remove };
 }
 
 const CalendarPage = () => {
@@ -56,28 +50,6 @@ const CalendarPage = () => {
   const [calendarDate, setCalendarDate] = useState(new Date());
   const calendarRef = useRef(null);
   const { events, createOrUpdate, remove } = useReservations();
-
-  const formatReservations = (data) => {
-    return data.map(reservation => {
-      const start = reservation.start_time?.endsWith('Z') ? reservation.start_time : reservation.start_time + ":00Z";
-      const end = reservation.end_time?.endsWith('Z') ? reservation.end_time : reservation.end_time + ":00Z";
-
-      return {
-        id: reservation.id,
-        title: reservation.user_name || 'Reservation',
-        start,
-        end,
-        color: reservation.airplane_color || '#2563eb',
-        extendedProps: {
-          airplaneId: reservation.airplane_id,
-          tailNumber: reservation.airplane_tail || 'N/A',
-          phoneNumber: reservation.phone_number,
-          notes: reservation.notes,
-          complianceStatus: reservation.compliance_status,
-        }
-      };
-    });
-  };
 
   const handleDateSelect = (selectInfo) => {
     const start = selectInfo.start;
