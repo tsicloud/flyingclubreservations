@@ -56,6 +56,13 @@ const CalendarPage = () => {
   const [calendarView, setCalendarView] = useState('timeGridWeek');
   const [calendarDate, setCalendarDate] = useState(new Date());
   const calendarRef = useRef(null);
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+  useEffect(() => {
+    const checkScreen = () => setIsSmallScreen(window.innerWidth < 640);
+    checkScreen();
+    window.addEventListener('resize', checkScreen);
+    return () => window.removeEventListener('resize', checkScreen);
+  }, []);
   const { events, createOrUpdate, remove } = useReservations();
 
   const handleDateSelect = (selectInfo) => {
@@ -181,15 +188,15 @@ const CalendarPage = () => {
     <div className="p-4">
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-        initialView={calendarView}
+        initialView={isSmallScreen ? 'listWeek' : calendarView}
         initialDate={calendarDate}
         headerToolbar={{
           left: 'prev,next today',
           center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay',
+          right: isSmallScreen ? 'listWeek,listDay' : 'dayGridMonth,timeGridWeek,timeGridDay'
         }}
         scrollTime="00:00"
-        aspectRatio={1.35}
+        aspectRatio={isSmallScreen ? 0.5 : 1.35}
         selectable={true}
         editable={true}
         events={events}
