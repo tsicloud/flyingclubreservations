@@ -58,6 +58,39 @@ export async function onRequestPost(context) {
     }
 }
 
+export async function onRequestPut(context) {
+  const { request, env } = context;
+
+  if (!env.DB) {
+    return new Response("D1 database not configured", { status: 500 });
+  }
+
+  try {
+    const urlParts = new URL(context.request.url).pathname.split("/");
+    const id = urlParts[urlParts.length - 1];
+
+    const data = await request.json();
+    const { airplane_id, user_id, start_time, end_time, flight_review = false, notes = "" } = data;
+
+    if (!id || !airplane_id || !user_id || !start_time || !end_time) {
+      return new Response("Missing required fields", { status: 400 });
+    }
+
+    const stmt = env.DB.prepare(
+      `UPDATE reservations
+       SET airplane_id = ?, user_id = ?, start_time = ?, end_time = ?, flight_review = ?, notes = ?
+       WHERE id = ?`
+    ).bind(airplane_id, user_id, start_time, end_time, flight_review, notes, id);
+
+    await stmt.run();
+
+    return Response.json({ success: true });
+  } catch (error) {
+    console.error("Error updating reservation:", error);
+    return new Response("Failed to update reservation", { status: 500 });
+  }
+}
+
 export async function onRequestDelete(context) {
   const { env } = context;
 

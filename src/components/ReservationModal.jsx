@@ -107,16 +107,31 @@ export default function ReservationModal({ isOpen, onClose, onSave, formData = {
           </button>
           <button
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            onClick={() => {
+            onClick={async () => {
               if (!formData.airplane_id || !formData.start_time || !formData.end_time) {
                 alert('Please complete all fields before saving.');
                 return;
               }
-              onSave({
-                ...formData,
-                start_time: new Date(formData.start_time).toISOString(),
-                end_time: new Date(formData.end_time).toISOString(),
-              });
+
+              try {
+                const response = await fetch('/api/reservations', {
+                  method: formData.id ? 'PUT' : 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(formData),
+                });
+
+                if (!response.ok) {
+                  throw new Error('Failed to save reservation');
+                }
+
+                onSave(); // Optionally re-fetch reservations after saving
+                onClose();
+              } catch (error) {
+                console.error(error);
+                alert('Error saving reservation. Please try again.');
+              }
             }}
           >
             Save
