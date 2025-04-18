@@ -86,6 +86,9 @@ export async function onRequestPost(context) {
 
       const airplaneId = findAirplane.id;
 
+      const startDateTime = new Date(`${reservationData.start_date}T${reservationData.start_time}`).toISOString();
+      const endDateTime = new Date(`${reservationData.end_date}T${reservationData.end_time}`).toISOString();
+
       await env.DB.prepare(`
         INSERT INTO reservations (airplane_id, user_id, start_time, end_time, notes)
         VALUES (?, ?, ?, ?, ?)
@@ -93,8 +96,8 @@ export async function onRequestPost(context) {
       .bind(
         airplaneId,
         "auth0|user2",
-        reservationData.start_time,
-        reservationData.end_time,
+        startDateTime,
+        endDateTime,
         `Created via SMS from ${from}`
       )
       .run();
