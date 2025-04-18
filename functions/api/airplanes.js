@@ -1,7 +1,5 @@
-import { getD1Database } from '../_utils/database';
-
 export async function onRequest(context) {
-  const db = getD1Database(context);
+  const db = context.env.DB;
 
   const { results } = await db.prepare(`
     SELECT id, tail_number, name, color
