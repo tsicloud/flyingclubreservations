@@ -35,18 +35,8 @@ export async function onRequestPost(context) {
             start_time,
             end_time,
             flight_review = false,
-            notes = "",
-            mode
+            notes = ""
         } = data;
-
-        if (mode === "delete") {
-            if (!id) {
-                return new Response("Reservation ID is required for delete", { status: 400 });
-            }
-            const stmt = env.DB.prepare(`DELETE FROM reservations WHERE id = ?`).bind(id);
-            await stmt.run();
-            return new Response("Reservation deleted", { status: 200 });
-        }
 
         if (!airplane_id || !user_id || !start_time || !end_time) {
             return new Response("Missing required fields", { status: 400 });
@@ -74,5 +64,25 @@ export async function onRequestPost(context) {
     } catch (error) {
         console.error("Error saving reservation:", error);
         return new Response("Failed to save reservation", { status: 500 });
+    }
+}
+
+export async function onRequestDelete(context) {
+    const { request, env } = context;
+    if (!env.DB) {
+        return new Response("D1 database not configured", { status: 500 });
+    }
+
+    try {
+        const { id } = await request.json();
+        if (!id) {
+            return new Response("Reservation ID is required for delete", { status: 400 });
+        }
+        const stmt = env.DB.prepare(`DELETE FROM reservations WHERE id = ?`).bind(id);
+        await stmt.run();
+        return new Response("Reservation deleted", { status: 200 });
+    } catch (error) {
+        console.error("Error deleting reservation:", error);
+        return new Response("Failed to delete reservation", { status: 500 });
     }
 }

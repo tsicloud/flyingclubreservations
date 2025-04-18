@@ -115,12 +115,8 @@ export default function ReservationModal({ isOpen, onClose, onSave, onDelete, fo
               onClick={async () => {
                 if (customConfirm('Are you sure you want to delete this reservation?')) {
                   try {
-                    const response = await fetch('/api/reservations/delete', {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json',
-                      },
-                      body: JSON.stringify({ id: formData.id }),
+                    const response = await fetch(`/api/reservations/${formData.id}`, {
+                      method: 'DELETE',
                     });
                     if (!response.ok) {
                       throw new Error('Failed to delete reservation');
@@ -164,13 +160,16 @@ export default function ReservationModal({ isOpen, onClose, onSave, onDelete, fo
 
               const payload = {
                 airplane_id: formData.airplane_id,
-                user_id: formData.user_id ?? 'auth0|user1',
+                user_id: formData.user_id || 'auth0|user1', // fallback only if missing
                 start_time: formData.start_time,
                 end_time: formData.end_time,
-                flight_review: formData.flight_review || false,
-                notes: formData.notes || '',
-                ...(formData.id && { id: formData.id }), // Include id if editing
+                flight_review: formData.flight_review ?? false,
+                notes: formData.notes ?? '',
               };
+
+              if (formData.id) {
+                payload.id = formData.id; // If editing, include the id
+              }
 
               try {
                 const response = await fetch('/api/reservations', {
@@ -181,8 +180,10 @@ export default function ReservationModal({ isOpen, onClose, onSave, onDelete, fo
                   body: JSON.stringify(payload),
                 });
 
-                if (!response.ok) {
-                  throw new Error('Failed to save reservation');
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                  throw new Error(result.message || 'Failed to save reservation');
                 }
 
                 await onSave(); // Ensure save completes before closing
