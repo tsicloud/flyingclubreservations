@@ -1,15 +1,15 @@
 export async function fetchReservations() {
     try {
-      const response = await fetch("/reservations");
+      const response = await fetch("/reservations_with_airplanes");
       if (!response.ok) {
-        throw new Error("Failed to fetch reservations");
+        throw new Error("Failed to fetch reservations with airplanes");
       }
       return await response.json();
     } catch (error) {
-      console.error("Error fetching reservations:", error);
+      console.error("Error fetching reservations with airplanes:", error);
       return [];
     }
-  }
+}
   
 export async function createReservation(reservationData) {
   try {

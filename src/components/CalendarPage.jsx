@@ -14,7 +14,7 @@ const formatReservations = (data) => data.map(reservation => ({
   color: reservation.airplane_color || '#2563eb',
   extendedProps: {
     airplaneId: reservation.airplane_id,
-    tailNumber: reservation.airplane_tail_number,
+    tailNumber: reservation.airplane_tail_number || 'N/A',
     phoneNumber: reservation.phone_number,
     notes: reservation.notes,
     complianceStatus: reservation.compliance_status,
@@ -32,9 +32,17 @@ const CalendarPage = () => {
 
   useEffect(() => {
     const loadReservations = async () => {
-      const data = await fetchReservations();
-      const formatted = formatReservations(data);
-      setReservations(formatted);
+      try {
+        const data = await fetchReservations();
+        if (Array.isArray(data)) {
+          const formatted = formatReservations(data);
+          setReservations(formatted);
+        } else {
+          console.warn('Fetched reservations is not an array:', data);
+        }
+      } catch (error) {
+        console.error('Error loading reservations:', error);
+      }
     };
     loadReservations();
   }, []);
@@ -54,10 +62,23 @@ const CalendarPage = () => {
   };
 
   const handleReservationSave = async ({ airplaneId, notes }) => {
-    await createReservation({ start: selectedStart, end: selectedEnd, airplaneId, notes });
-    const updated = await fetchReservations();
-    setReservations(formatReservations(updated));
-    setModalOpen(false);
+    if (!airplaneId) {
+      console.error('Airplane ID is required to create a reservation');
+      return;
+    }
+    try {
+      await createReservation({
+        start_time: selectedStart.toISOString(),
+        end_time: selectedEnd.toISOString(),
+        airplane_id: airplaneId,
+        notes: notes || '',
+      });
+      const updated = await fetchReservations();
+      setReservations(formatReservations(updated));
+      setModalOpen(false);
+    } catch (error) {
+      console.error('Failed to save reservation:', error);
+    }
   };
 
   const handleDatesSet = (arg) => {
@@ -67,12 +88,13 @@ const CalendarPage = () => {
 
   const renderEventContent = (eventInfo) => {
     const bgColor = eventInfo.event.backgroundColor || '#2563eb';
+    const tailNumber = eventInfo.event.extendedProps.tailNumber || 'N/A';
     return (
       <div
         style={{
           backgroundColor: bgColor,
-          padding: '8px 12px',
-          borderRadius: '6px',
+          padding: '6px 8px',
+          borderRadius: '4px',
           color: 'white',
           textAlign: 'left',
           overflow: 'hidden',
@@ -81,11 +103,11 @@ const CalendarPage = () => {
           fontSize: '0.9rem',
         }}
       >
-        <div style={{ fontWeight: 'bold' }}>
-          {eventInfo.event.extendedProps.tailNumber || 'Unknown Tail #'}
+        <div style={{ fontWeight: '600' }}>
+          {tailNumber}
         </div>
-        <div style={{ marginTop: '2px' }}>
-          {eventInfo.event.title || 'Reservation'}
+        <div style={{ fontSize: '0.8rem', marginTop: '2px' }}>
+          {eventInfo.event.title}
         </div>
       </div>
     );
