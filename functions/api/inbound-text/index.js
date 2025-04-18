@@ -34,23 +34,21 @@ Extract the following fields from this SMS message:
 TODAY'S DATE: ${todayISO}
 
 **Date Parsing Rules:**
-- If the user mentions a full date (e.g., "May 2", "4/27", "July 4th", "Sunday 4/27", "Sunday the 27th"), use that date and ignore the weekday.
-- If the user mentions only a weekday (e.g., "Sunday", "next Tuesday"):
-  - Calculate the next occurrence of that weekday **after TODAY** (even if just 1-2 days ahead).
-  - **Example:** If today is Friday and the user says "next Sunday", it should select the closest Sunday (2 days later), not the one 9 days later.
-- Always include the full year, month, and day.
-- Assume the reservation is for this year unless another year is specified.
-- If end date is not specified, assume it is the same as the start date.
-- If end time is not specified, assume 23:59.
+- If a full date is mentioned (e.g., "May 2", "4/27", "July 4th", "Sunday 4/27", "Sunday the 27th"), use that date directly.
+- If only a weekday is mentioned (e.g., "Sunday", "next Tuesday"), find the next occurrence of that weekday based on TODAY'S DATE.
+  - Example: If today is Friday and the message says "Sunday", pick the Sunday 2 days later (not 9 days later).
+- Assume the current year unless a different year is mentioned.
+- If end date is missing, assume same as start date.
+- If end time is missing, assume 23:59.
 
-**Strict Requirements:**
-- Return ONLY strict JSON with these fields: tail_number, start_date, start_time, end_date, end_time.
-- Do not include any markdown, explanations, commentary, or extra text.
+**Strict Instructions:**
+- Respond with ONLY a valid JSON object matching these fields: tail_number, start_date, start_time, end_date, end_time.
+- Do NOT add explanations, markdown, or any commentary.
 
 MESSAGE: "${message}"
 `;
 
-  const aiResponse = await env.AI.run("@cf/mistral/mistral-7b-instruct-v0.1", {
+  const aiResponse = await env.AI.run("@cf/mistralai/mistral-small-3.1-24b-instruct", {
     prompt
   });
 
