@@ -48,5 +48,58 @@ Message: "${message}"
     console.error("No JSON block found in AI response.");
   }
 
+  if (reservationData) {
+    try {
+      // Find the airplane by tail number
+      const findAirplane = await env.DB.prepare(`
+        SELECT id FROM airplanes WHERE tail_number = ?
+      `).bind(reservationData.tail_number).first();
+
+      if (!findAirplane) {
+        console.error(`Airplane not found for tail number: ${reservationData.tail_number}`);
+        return new Response(`Airplane not found`, { status: 400 });
+      }
+
+      const airplaneId = findAirplane.id;
+
+      // Construct ISO 8601 timestamps (year-month-dayThh:mm)
+      const todayYear = new Date().getFullYear();
+      const formatDate = (dateStr) => {
+        const [month, day] = dateStr.split('/');
+        return `${todayYear}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+      };
+      const formatTime = (timeStr) => {
+        if (timeStr.includes(':')) return timeStr;
+        if (timeStr.toLowerCase().includes('am') || timeStr.toLowerCase().includes('pm')) {
+          let hour = parseInt(timeStr.replace(/[^0-9]/g, ''));
+          if (timeStr.toLowerCase().includes('pm') && hour < 12) hour += 12;
+          if (timeStr.toLowerCase().includes('am') && hour === 12) hour = 0;
+          return `${hour.toString().padStart(2, '0')}:00:00`;
+        }
+        return timeStr; // assume it's already formatted
+      };
+
+      const startDateTime = `${formatDate(reservationData.start_date)}T${formatTime(reservationData.start_time)}`;
+      const endDateTime = `${formatDate(reservationData.end_date)}T${formatTime(reservationData.end_time)}`;
+
+      // Insert the reservation
+      await env.DB.prepare(`
+        INSERT INTO reservations (airplane_id, user_id, start_time, end_time, notes)
+        VALUES (?, NULL, ?, ?, ?)
+      `)
+      .bind(
+        airplaneId,
+        startDateTime,
+        endDateTime,
+        `Created via SMS from ${from}`
+      )
+      .run();
+
+      console.log("Reservation created successfully!");
+    } catch (error) {
+      console.error("Failed to insert reservation:", error);
+    }
+  }
+
   return new Response("Received", { status: 200 });
 }
