@@ -16,20 +16,25 @@ const CalendarPage = () => {
   const calendarRef = useRef(null);
 
   const formatReservations = (data) => {
-    return data.map(reservation => ({
-      id: reservation.id,
-      title: reservation.user_name || 'Reservation',
-      start: reservation.start_time,
-      end: reservation.end_time,
-      color: reservation.airplane_color || '#2563eb',
-      extendedProps: {
-        airplaneId: reservation.airplane_id,
-        tailNumber: reservation.airplane_tail || 'N/A',
-        phoneNumber: reservation.phone_number,
-        notes: reservation.notes,
-        complianceStatus: reservation.compliance_status,
-      }
-    }));
+    return data.map(reservation => {
+      const start = reservation.start_time?.endsWith('Z') ? reservation.start_time : reservation.start_time + ":00Z";
+      const end = reservation.end_time?.endsWith('Z') ? reservation.end_time : reservation.end_time + ":00Z";
+
+      return {
+        id: reservation.id,
+        title: reservation.user_name || 'Reservation',
+        start,
+        end,
+        color: reservation.airplane_color || '#2563eb',
+        extendedProps: {
+          airplaneId: reservation.airplane_id,
+          tailNumber: reservation.airplane_tail || 'N/A',
+          phoneNumber: reservation.phone_number,
+          notes: reservation.notes,
+          complianceStatus: reservation.compliance_status,
+        }
+      };
+    });
   };
 
   useEffect(() => {
