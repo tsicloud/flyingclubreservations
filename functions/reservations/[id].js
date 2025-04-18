@@ -12,11 +12,22 @@ export async function onRequest(context) {
   }
 
   try {
-      if (request.method === "DELETE") {
-        const stmt = env.DB.prepare(`DELETE FROM reservations WHERE id = ?`).bind(id);
-        await stmt.run();
-        return new Response(JSON.stringify({ success: true, message: "Reservation deleted" }), { status: 200 });
-      } else if (request.method === "PUT") {
+    if (request.method === "GET") {
+      const { results } = await env.DB
+        .prepare("SELECT * FROM reservations WHERE id = ?")
+        .bind(id)
+        .all();
+      return new Response(JSON.stringify(results[0] || null), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    } else if (request.method === "DELETE") {
+      await env.DB
+        .prepare("DELETE FROM reservations WHERE id = ?")
+        .bind(id)
+        .run();
+      return new Response(null, { status: 204 });
+    } else if (request.method === "PUT") {
       const data = await request.json();
       const { start_time, end_time, airplane_id, notes } = data;
 
@@ -30,13 +41,22 @@ export async function onRequest(context) {
         WHERE id = ?
       `).bind(start_time, end_time, airplane_id, notes || '', id);
 
-      await stmt.run();
-      return new Response(JSON.stringify({ success: true, message: "Reservation updated" }), { status: 200 });
-    } else {
-      return new Response(JSON.stringify({ success: false, message: "Method not allowed" }), { status: 405 });
+      const result = await stmt.run();
+      return new Response(JSON.stringify({ success: true, changes: result.changes }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
     }
+    
+    return new Response(JSON.stringify({ success: false, message: "Method not allowed" }), {
+      status: 405,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error) {
     console.error("Error handling reservation:", error);
-    return new Response(JSON.stringify({ success: false, message: "Failed to handle reservation" }), { status: 500 });
+    return new Response(JSON.stringify({ success: false, message: "Failed to handle reservation" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }
