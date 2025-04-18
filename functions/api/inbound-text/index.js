@@ -85,10 +85,11 @@ Message: "${message}"
       // Insert the reservation
       await env.DB.prepare(`
         INSERT INTO reservations (airplane_id, user_id, start_time, end_time, notes)
-        VALUES (?, NULL, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?)
       `)
       .bind(
         airplaneId,
+        "auth0|user2",
         startDateTime,
         endDateTime,
         `Created via SMS from ${from}`
