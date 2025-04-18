@@ -24,12 +24,12 @@ export async function onRequestPost(context) {
   const prompt = `
 You are an AI agent for a flying club. Extract the following information from this text message:
 - Tail Number
-- Start Date
-- Start Time
-- End Date (if mentioned; otherwise assume same day)
-- End Time (if not end time; 11:59PM)
+- Start Date (in ISO 8601 format YYYY-MM-DD; use today's year if not specified)
+- Start Time (in 24-hour format HH:MM)
+- End Date (in ISO 8601 format YYYY-MM-DD; if not specified, assume same day)
+- End Time (in 24-hour format HH:MM; if not specified, use 23:59)
 
-Return the result as JSON with fields: tail_number, start_date, start_time, end_date, end_time.
+Return ONLY strict JSON with these fields: tail_number, start_date, start_time, end_date, end_time. No explanations, no markdown, no extra text.
 
 Message: "${message}"
 `;
@@ -73,26 +73,6 @@ Message: "${message}"
 
       const airplaneId = findAirplane.id;
 
-      // Construct ISO 8601 timestamps (year-month-dayThh:mm)
-      const todayYear = new Date().getFullYear();
-      const formatDate = (dateStr) => {
-        const [month, day] = dateStr.split('/');
-        return `${todayYear}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-      };
-      const formatTime = (timeStr) => {
-        if (timeStr.includes(':')) return timeStr;
-        if (timeStr.toLowerCase().includes('am') || timeStr.toLowerCase().includes('pm')) {
-          let hour = parseInt(timeStr.replace(/[^0-9]/g, ''));
-          if (timeStr.toLowerCase().includes('pm') && hour < 12) hour += 12;
-          if (timeStr.toLowerCase().includes('am') && hour === 12) hour = 0;
-          return `${hour.toString().padStart(2, '0')}:00:00`;
-        }
-        return timeStr; // assume it's already formatted
-      };
-
-      const startDateTime = `${formatDate(reservationData.start_date)}T${formatTime(reservationData.start_time)}`;
-      const endDateTime = `${formatDate(reservationData.end_date)}T${formatTime(reservationData.end_time)}`;
-
       // Insert the reservation
       await env.DB.prepare(`
         INSERT INTO reservations (airplane_id, user_id, start_time, end_time, notes)
@@ -101,8 +81,8 @@ Message: "${message}"
       .bind(
         airplaneId,
         "auth0|user2",
-        startDateTime,
-        endDateTime,
+        reservationData.start_time,
+        reservationData.end_time,
         `Created via SMS from ${from}`
       )
       .run();
