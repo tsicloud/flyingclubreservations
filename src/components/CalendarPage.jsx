@@ -9,8 +9,12 @@ import { fetchReservations, createReservation, deleteReservation } from '../serv
 const CalendarPage = () => {
   const [reservations, setReservations] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedStart, setSelectedStart] = useState(null);
-  const [selectedEnd, setSelectedEnd] = useState(null);
+  const [formData, setFormData] = useState({
+    start_time: null,
+    end_time: null,
+    airplane_id: '',
+    notes: ''
+  });
   const [calendarView, setCalendarView] = useState('timeGridWeek');
   const [calendarDate, setCalendarDate] = useState(new Date());
   const calendarRef = useRef(null);
@@ -75,8 +79,12 @@ const CalendarPage = () => {
       end = new Date(start.getTime() + 2 * 60 * 60 * 1000); // Default to 2 hours
     }
 
-    setSelectedStart(start);
-    setSelectedEnd(end);
+    setFormData({
+      start_time: start,
+      end_time: end,
+      airplane_id: '',
+      notes: ''
+    });
     setModalOpen(true);
   };
 
@@ -95,8 +103,8 @@ const CalendarPage = () => {
     }
     try {
       await createReservation({
-        start_time: selectedStart.toISOString(),
-        end_time: selectedEnd.toISOString(),
+        start_time: formData.start_time.toISOString(),
+        end_time: formData.end_time.toISOString(),
         airplane_id: airplaneId,
         notes: notes || '',
       });
@@ -164,8 +172,8 @@ const CalendarPage = () => {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         onSave={handleReservationSave}
-        start={selectedStart}
-        end={selectedEnd}
+        formData={formData}
+        setFormData={setFormData}
       />
     </div>
   );
