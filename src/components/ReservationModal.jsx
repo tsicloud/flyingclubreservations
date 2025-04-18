@@ -144,7 +144,8 @@ export default function ReservationModal({ isOpen, onClose, onSave, onDelete, fo
               }
 
               try {
-                await onSave({ airplaneId: formData.airplane_id, notes: formData.notes || '' });
+                await onSave(formData);
+                onClose();
               } catch (error) {
                 console.error(error);
                 alert('Error saving reservation. Please try again.');

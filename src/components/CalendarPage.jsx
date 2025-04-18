@@ -4,7 +4,10 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import ReservationModal from './ReservationModal';
-import { fetchReservations, createReservation, deleteReservation } from '../services/api';
+import { fetchReservations, createReservation, updateReservation, deleteReservation } from '../services/api';
+import '@fullcalendar/common/main.css';
+import '@fullcalendar/daygrid/main.css';
+import '@fullcalendar/timegrid/main.css';
 
 // Map raw reservation data into FullCalendar event objects
 const formatReservations = (data) =>
@@ -33,7 +36,14 @@ function useReservations() {
       setEvents(formatReservations(data));
     } catch (e) { console.error("Error loading reservations", e); }
   };
-  const createOrUpdate = async payload => { await createReservation(payload); await reload(); };
+  const createOrUpdate = async payload => {
+    if (payload.id) {
+      await updateReservation(payload.id, payload);
+    } else {
+      await createReservation(payload);
+    }
+    await reload();
+  };
   const remove = async id => { await deleteReservation(id); await reload(); };
   return { events, createOrUpdate, remove };
 }
@@ -100,19 +110,20 @@ const CalendarPage = () => {
     }
   };
 
-  const handleReservationSave = async ({ airplaneId, notes }) => {
-    const airplaneToUse = airplaneId || formData.airplane_id;
-    if (!airplaneToUse) {
+  const handleReservationSave = async reservation => {
+    // Ensure we have the full reservation object from the modal
+    const { id, start_time, end_time, airplane_id, notes } = reservation;
+    if (!airplane_id) {
       console.error('Airplane ID is required');
       return;
     }
     try {
       await createOrUpdate({
-        id: formData.id,
-        start_time: formData.start_time.toISOString(),
-        end_time: formData.end_time.toISOString(),
-        airplane_id: airplaneToUse,
-        notes: notes || formData.notes || '',
+        id,
+        start_time: start_time instanceof Date ? start_time.toISOString() : start_time,
+        end_time:   end_time   instanceof Date ? end_time.toISOString()   : end_time,
+        airplane_id,
+        notes: notes || '',
       });
       setModalOpen(false);
     } catch (error) {
