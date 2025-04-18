@@ -53,7 +53,9 @@ export default function ReservationModal({ isOpen, onClose, onSave, onDelete, fo
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
       <div className="bg-white p-6 rounded shadow-md w-96">
-        <h2 className="text-lg font-semibold mb-4">New Reservation</h2>
+        <h2 className="text-lg font-semibold mb-4">
+          {formData.id ? 'Edit Reservation' : 'New Reservation'}
+        </h2>
 
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">Airplane</label>
@@ -115,13 +117,7 @@ export default function ReservationModal({ isOpen, onClose, onSave, onDelete, fo
               onClick={async () => {
                 if (customConfirm('Are you sure you want to delete this reservation?')) {
                   try {
-                    const response = await fetch(`/api/reservations/${formData.id}`, {
-                      method: 'DELETE',
-                    });
-                    if (!response.ok) {
-                      throw new Error('Failed to delete reservation');
-                    }
-                    await onDelete();
+                    await onDelete(formData.id);
                     onClose();
                   } catch (error) {
                     console.error(error);
@@ -147,35 +143,8 @@ export default function ReservationModal({ isOpen, onClose, onSave, onDelete, fo
                 return;
               }
 
-              const payload = {
-                airplane_id: formData.airplane_id,
-                user_id: formData.user_id || 'auth0|user1',
-                start_time: formData.start_time,
-                end_time: formData.end_time,
-                flight_review: formData.flight_review ?? false,
-                notes: formData.notes ?? '',
-              };
-
               try {
-                const method = formData.id ? 'PUT' : 'POST';
-                const url = formData.id ? `/api/reservations/${formData.id}` : '/api/reservations';
-
-                const response = await fetch(url, {
-                  method,
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(payload),
-                });
-
-                const result = await response.json();
-
-                if (!response.ok || !result.success) {
-                  throw new Error(result.message || 'Failed to save reservation');
-                }
-
-                await onSave();
-                onClose();
+                await onSave({ airplaneId: formData.airplane_id, notes: formData.notes || '' });
               } catch (error) {
                 console.error(error);
                 alert('Error saving reservation. Please try again.');
