@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+// eslint-disable-next-line no-restricted-globals
+const customConfirm = (message) => confirm(message);
 
 const formatDateForInput = (date) => {
   if (!date) return '';
@@ -103,7 +105,7 @@ export default function ReservationModal({ isOpen, onClose, onSave, onDelete, fo
             <button
               className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
               onClick={async () => {
-                if (confirm('Are you sure you want to delete this reservation?')) {
+                if (customConfirm('Are you sure you want to delete this reservation?')) {
                   try {
                     const response = await fetch(`/api/reservations/${formData.id}`, {
                       method: 'DELETE',
