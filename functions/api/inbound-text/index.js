@@ -35,7 +35,9 @@ TODAY'S DATE: ${todayISO}
 
 **Date Parsing Rules:**
 - If the user mentions a full date (e.g., "May 2", "4/27", "July 4th", "Sunday 4/27", "Sunday the 27th"), use that date and ignore the weekday.
-- If the user mentions only a weekday (e.g., "Sunday", "next Tuesday"), calculate the next occurrence of that weekday after TODAY.
+- If the user mentions only a weekday (e.g., "Sunday", "next Tuesday"):
+  - Calculate the next occurrence of that weekday **after TODAY** (even if just 1-2 days ahead).
+  - **Example:** If today is Friday and the user says "next Sunday", it should select the closest Sunday (2 days later), not the one 9 days later.
 - Always include the full year, month, and day.
 - Assume the reservation is for this year unless another year is specified.
 - If end date is not specified, assume it is the same as the start date.
@@ -48,7 +50,7 @@ TODAY'S DATE: ${todayISO}
 MESSAGE: "${message}"
 `;
 
-  const aiResponse = await env.AI.run("@cf/meta/llama-3-8b-instruct", {
+  const aiResponse = await env.AI.run("@cf/meta/llama-3-70b-instruct", {
     prompt
   });
 
