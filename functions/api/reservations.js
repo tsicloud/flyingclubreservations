@@ -30,16 +30,27 @@ export async function onRequestPost(context) {
 
     try {
       const data = await request.json();
-
-      const { airplane_id, user_id, start_time, end_time, flight_review, notes } = data;
-
+ 
+      const {
+        airplane_id,
+        user_id,
+        start_time,
+        end_time,
+        flight_review = false,
+        notes = ""
+      } = data;
+ 
+      if (!airplane_id || !user_id || !start_time || !end_time) {
+        return new Response("Missing required fields", { status: 400 });
+      }
+ 
       const stmt = env.DB.prepare(
         `INSERT INTO reservations (airplane_id, user_id, start_time, end_time, flight_review, notes)
          VALUES (?, ?, ?, ?, ?, ?)`
-      ).bind(airplane_id, user_id, start_time, end_time, flight_review || false, notes || "");
-
+      ).bind(airplane_id, user_id, start_time, end_time, flight_review, notes);
+ 
       const result = await stmt.run();
-
+ 
       return Response.json({ success: true, id: result.lastRowId });
     } catch (error) {
       console.error("Error creating reservation:", error);
