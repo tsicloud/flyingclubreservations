@@ -175,11 +175,6 @@ const CalendarPage = () => {
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView={calendarView}
         initialDate={calendarDate}
-        viewDidMount={() => {
-          if (calendarRef.current) {
-            calendarRef.current.getApi().changeView(calendarView, calendarDate);
-          }
-        }}
         headerToolbar={{
           left: 'prev,next today',
           center: 'title',
