@@ -30,8 +30,8 @@ export async function onRequestPost(context) {
 
     try {
       const data = await request.json();
- 
       const {
+        id,
         airplane_id,
         user_id,
         start_time,
@@ -39,22 +39,33 @@ export async function onRequestPost(context) {
         flight_review = false,
         notes = ""
       } = data;
- 
+
       if (!airplane_id || !user_id || !start_time || !end_time) {
         return new Response("Missing required fields", { status: 400 });
       }
- 
-      const stmt = env.DB.prepare(
-        `INSERT INTO reservations (airplane_id, user_id, start_time, end_time, flight_review, notes)
-         VALUES (?, ?, ?, ?, ?, ?)`
-      ).bind(airplane_id, user_id, start_time, end_time, flight_review, notes);
- 
-      const result = await stmt.run();
- 
+
+      let result;
+      if (id) {
+        // Update existing reservation
+        const stmt = env.DB.prepare(
+          `UPDATE reservations
+           SET airplane_id = ?, user_id = ?, start_time = ?, end_time = ?, flight_review = ?, notes = ?
+           WHERE id = ?`
+        ).bind(airplane_id, user_id, start_time, end_time, flight_review, notes, id);
+        result = await stmt.run();
+      } else {
+        // Create new reservation
+        const stmt = env.DB.prepare(
+          `INSERT INTO reservations (airplane_id, user_id, start_time, end_time, flight_review, notes)
+           VALUES (?, ?, ?, ?, ?, ?)`
+        ).bind(airplane_id, user_id, start_time, end_time, flight_review, notes);
+        result = await stmt.run();
+      }
+
       return Response.json({ success: true, id: result.lastRowId });
     } catch (error) {
-      console.error("Error creating reservation:", error);
-      return new Response("Failed to create reservation", { status: 500 });
+      console.error("Error saving reservation:", error);
+      return new Response("Failed to save reservation", { status: 500 });
     }
 }
 

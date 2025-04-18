@@ -26,19 +26,27 @@ export default function ReservationModal({ isOpen, onClose, onSave, onDelete, fo
   }, [isOpen]);
 
   useEffect(() => {
-    if (isOpen && (!formData.start_time || !formData.end_time)) {
+    if (isOpen) {
       const now = new Date();
-      const defaultStart = new Date(now);
-      const defaultEnd = new Date(now);
-      defaultEnd.setHours(now.getHours() + 2);
+      if (!formData.start_time || !formData.end_time) {
+        const defaultStart = new Date(now);
+        const defaultEnd = new Date(now);
+        defaultEnd.setHours(now.getHours() + 2);
 
-      setFormData((prev) => ({
-        ...prev,
-        start_time: defaultStart.toISOString(),
-        end_time: defaultEnd.toISOString(),
-      }));
+        setFormData((prev) => ({
+          ...prev,
+          start_time: defaultStart.toISOString(),
+          end_time: defaultEnd.toISOString(),
+        }));
+      }
+      if (!formData.airplane_id && airplanes.length > 0) {
+        setFormData((prev) => ({
+          ...prev,
+          airplane_id: airplanes[0]?.id || '',
+        }));
+      }
     }
-  }, [isOpen, formData.start_time, formData.end_time, setFormData]);
+  }, [isOpen, airplanes, formData.start_time, formData.end_time, formData.airplane_id, setFormData]);
 
   if (!isOpen) return null;
   
@@ -134,9 +142,20 @@ export default function ReservationModal({ isOpen, onClose, onSave, onDelete, fo
           <button
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
             onClick={async () => {
-              if (!formData.airplane_id || !formData.start_time || !formData.end_time) {
+              if (!formData.start_time || !formData.end_time) {
                 alert('Please complete all fields before saving.');
                 return;
+              }
+              if (!formData.airplane_id) {
+                if (airplanes.length > 0) {
+                  setFormData((prev) => ({
+                    ...prev,
+                    airplane_id: airplanes[0]?.id || '',
+                  }));
+                } else {
+                  alert('No airplanes available to assign. Please try again.');
+                  return;
+                }
               }
 
               const payload = {
