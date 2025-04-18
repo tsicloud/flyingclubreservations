@@ -73,10 +73,9 @@ const CalendarPage = () => {
 
   const handleDateSelect = (selectInfo) => {
     const start = selectInfo.start;
-    let end = selectInfo.end;
-
-    if (!selectInfo.allDay && start.getTime() === end.getTime()) {
-      end = new Date(start.getTime() + 2 * 60 * 60 * 1000); // Default to 2 hours
+    let end = selectInfo.end || new Date(start.getTime() + 2 * 60 * 60 * 1000); // Default to 2 hours if end not provided
+    if (start.getTime() === end.getTime()) {
+      end = new Date(start.getTime() + 2 * 60 * 60 * 1000);
     }
 
     setFormData({
@@ -140,6 +139,9 @@ const CalendarPage = () => {
       await new Promise(resolve => setTimeout(resolve, 300));
       const updated = await fetchReservations();
       setReservations(formatReservations(updated));
+      if (calendarRef.current) {
+        calendarRef.current.getApi().changeView(calendarView, calendarDate);
+      }
       setModalOpen(false);
     } catch (error) {
       console.error('Failed to save reservation:', error);
