@@ -71,17 +71,22 @@ const CalendarPage = () => {
       <div
         style={{
           backgroundColor: bgColor,
-          padding: '6px 10px',
-          borderRadius: '4px',
+          padding: '8px 12px',
+          borderRadius: '6px',
           color: 'white',
           textAlign: 'left',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap',
+          fontSize: '0.9rem',
         }}
       >
-        <strong>{eventInfo.event.title}</strong>
-        <div>Tail Number: {eventInfo.event.extendedProps.tailNumber}</div>
+        <div style={{ fontWeight: 'bold' }}>
+          {eventInfo.event.extendedProps.tailNumber || 'Unknown Tail #'}
+        </div>
+        <div style={{ marginTop: '2px' }}>
+          {eventInfo.event.title || 'Reservation'}
+        </div>
       </div>
     );
   };
