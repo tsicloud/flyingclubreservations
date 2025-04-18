@@ -1,4 +1,3 @@
-import { Ai } from "@cloudflare/ai";
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -9,8 +8,7 @@ export async function onRequestPost(context) {
 
   console.log("Inbound SMS received:", { from, message });
 
-  // Initialize AI
-  const ai = new Ai(env.AI); // 'AI' should be defined as a binding in wrangler.toml or project settings
+  // Run the AI model directly via env.AI
 
   // Define a prompt to instruct the model
   const prompt = `
@@ -27,7 +25,7 @@ Message: "${message}"
 `;
 
   // Run the AI model
-  const aiResponse = await ai.run("@cf/meta/llama-3-8b-instruct", {
+  const aiResponse = await env.AI.run("@cf/meta/llama-3-8b-instruct", {
     prompt
   });
 
