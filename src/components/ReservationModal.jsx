@@ -41,12 +41,16 @@ export default function ReservationModal({ isOpen, onClose, onSave, formData = {
             onChange={(e) => setFormData({ ...formData, airplane_id: e.target.value })}
             className="w-full border rounded p-2"
           >
-            <option value="">Select an airplane</option>
-            {airplanes.map((plane) => (
-              <option key={plane.id} value={plane.id}>
-                {plane.tail_number}
-              </option>
-            ))}
+            <option value="" disabled>Select an airplane</option>
+            {airplanes.length > 0 ? (
+              airplanes.map((plane) => (
+                <option key={plane.id} value={plane.id}>
+                  {plane.tail_number}
+                </option>
+              ))
+            ) : (
+              <option disabled>No airplanes available</option>
+            )}
           </select>
         </div>
 
@@ -92,7 +96,13 @@ export default function ReservationModal({ isOpen, onClose, onSave, formData = {
           </button>
           <button
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            onClick={onSave}
+            onClick={() => {
+              if (!formData.airplane_id || !formData.start_time || !formData.end_time) {
+                alert('Please complete all fields before saving.');
+                return;
+              }
+              onSave();
+            }}
           >
             Save
           </button>
