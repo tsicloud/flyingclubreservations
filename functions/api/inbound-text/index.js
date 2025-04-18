@@ -18,23 +18,24 @@ export async function onRequestPost(context) {
 
   console.log("Inbound SMS received:", { from, message });
 
-  // Run the AI model directly via env.AI
+  const today = new Date();
+  const todayISO = today.toISOString().split('T')[0]; // YYYY-MM-DD
 
-  // Define a prompt to instruct the model
   const prompt = `
-You are an AI agent for a flying club. Extract the following information from this text message:
-- Tail Number
-- Start Date (in ISO 8601 format YYYY-MM-DD; use today's year if not specified)
-- Start Time (in 24-hour format HH:MM)
-- End Date (in ISO 8601 format YYYY-MM-DD; if not specified, assume same day)
-- End Time (in 24-hour format HH:MM; if not specified, use 23:59)
+  You are an AI agent for a flying club. Extract the following information from this text message:
+  - Tail Number
+  - Start Date (in ISO 8601 format YYYY-MM-DD; use the current year if the message does not specify a year)
+  - Start Time (in 24-hour format HH:MM)
+  - End Date (in ISO 8601 format YYYY-MM-DD; if not specified, assume same day as start)
+  - End Time (in 24-hour format HH:MM; if not specified, use 23:59)
 
-Return ONLY strict JSON with these fields: tail_number, start_date, start_time, end_date, end_time. No explanations, no markdown, no extra text.
+  Today’s date is ${todayISO}. Use this information to infer the correct year if missing.
 
-Message: "${message}"
-`;
+  Return ONLY strict JSON with these fields: tail_number, start_date, start_time, end_date, end_time. No explanations, no markdown, no extra text.
 
-  // Run the AI model
+  Message: "${message}"
+  `;
+
   const aiResponse = await env.AI.run("@cf/meta/llama-3-8b-instruct", {
     prompt
   });
@@ -43,7 +44,6 @@ Message: "${message}"
 
   const extractedText = aiResponse.response;
 
-  // Try to find the JSON part
   const jsonMatch = extractedText.match(/{[\s\S]*}/);
 
   let reservationData = null;
@@ -60,8 +60,21 @@ Message: "${message}"
   }
 
   if (reservationData) {
+    const currentYear = new Date().getFullYear();
+
+    function correctYearIfNeeded(dateStr) {
+      if (!dateStr) return dateStr;
+      const [year, month, day] = dateStr.split("-");
+      if (Number(year) < currentYear) {
+        return `${currentYear}-${month}-${day}`;
+      }
+      return dateStr;
+    }
+
+    reservationData.start_date = correctYearIfNeeded(reservationData.start_date);
+    reservationData.end_date = correctYearIfNeeded(reservationData.end_date);
+
     try {
-      // Find the airplane by tail number
       const findAirplane = await env.DB.prepare(`
         SELECT id FROM airplanes WHERE tail_number = ?
       `).bind(reservationData.tail_number).first();
@@ -73,7 +86,6 @@ Message: "${message}"
 
       const airplaneId = findAirplane.id;
 
-      // Insert the reservation
       await env.DB.prepare(`
         INSERT INTO reservations (airplane_id, user_id, start_time, end_time, notes)
         VALUES (?, ?, ?, ?, ?)
