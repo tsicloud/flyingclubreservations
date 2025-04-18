@@ -22,19 +22,31 @@ export async function onRequestPost(context) {
   const todayISO = today.toISOString().split('T')[0]; // YYYY-MM-DD
 
   const prompt = `
-  You are an AI agent for a flying club. Extract the following information from this text message:
-  - Tail Number
-  - Start Date (in ISO 8601 format YYYY-MM-DD; use the current year if the message does not specify a year)
-  - Start Time (in 24-hour format HH:MM)
-  - End Date (in ISO 8601 format YYYY-MM-DD; if not specified, assume same day as start)
-  - End Time (in 24-hour format HH:MM; if not specified, use 23:59)
+You are an AI agent for a flying club.
 
-  Today’s date is ${todayISO}. Use this information to infer the correct year if missing.
+Extract the following fields from this SMS message:
+- Tail Number
+- Start Date (YYYY-MM-DD, ISO 8601 format)
+- Start Time (24-hour format, HH:MM)
+- End Date (YYYY-MM-DD, ISO 8601 format)
+- End Time (24-hour format, HH:MM)
 
-  Return ONLY strict JSON with these fields: tail_number, start_date, start_time, end_date, end_time. No explanations, no markdown, no extra text.
+TODAY'S DATE: ${todayISO}
 
-  Message: "${message}"
-  `;
+**Date Parsing Rules:**
+- If the user mentions a full date (e.g., "May 2", "4/27", "July 4th"), use that date.
+- If the user mentions only a weekday (e.g., "Sunday", "next Tuesday"), calculate the next occurrence of that weekday after TODAY.
+- Assume the reservation is for this year unless another year is specified.
+- Always fill in a complete year-month-day.
+- If end date is not specified, assume it is the same as the start date.
+- If end time is not specified, assume 23:59.
+
+**Strict Requirements:**
+- Return ONLY strict JSON with these fields: tail_number, start_date, start_time, end_date, end_time.
+- Do not include any markdown, explanations, commentary, or extra text.
+
+MESSAGE: "${message}"
+`;
 
   const aiResponse = await env.AI.run("@cf/meta/llama-3-8b-instruct", {
     prompt
