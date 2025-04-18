@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function ReservationModal({ isOpen, onClose, onSave, formData, setFormData, airplanes }) {
+export default function ReservationModal({ isOpen, onClose, onSave, formData = {}, setFormData, airplanes = [] }) {
   if (!isOpen) return null;
 
   return (
@@ -15,6 +15,7 @@ export default function ReservationModal({ isOpen, onClose, onSave, formData, se
             onChange={(e) => setFormData({ ...formData, airplane_id: e.target.value })}
             className="w-full border rounded p-2"
           >
+            <option value="">Select an airplane</option>
             {airplanes.map((plane) => (
               <option key={plane.id} value={plane.id}>
                 {plane.tail_number}

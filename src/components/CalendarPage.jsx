@@ -34,24 +34,14 @@ const CalendarPage = () => {
       await deleteReservation(clickInfo.event.id);
       const updated = await fetchReservations();
       setReservations(updated);
-      const calendarApi = calendarRef.current?.getApi();
-      if (calendarApi) {
-        calendarApi.gotoDate(calendarDate);
-        calendarApi.changeView(calendarView);
-      }
     }
   };
 
-  const handleReservationSave = async (start, end) => {
-    await createReservation({ start, end });
+  const handleReservationSave = async ({ airplaneId, notes }) => {
+    await createReservation({ start: selectedStart, end: selectedEnd, airplaneId, notes });
     const updated = await fetchReservations();
     setReservations(updated);
     setModalOpen(false);
-    const calendarApi = calendarRef.current?.getApi();
-    if (calendarApi) {
-      calendarApi.gotoDate(calendarDate);
-      calendarApi.changeView(calendarView);
-    }
   };
 
   const handleDatesSet = (arg) => {
