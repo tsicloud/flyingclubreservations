@@ -125,6 +125,9 @@ const CalendarPage = () => {
         notes: notes || '',
       });
       setModalOpen(false);
+      if (calendarRef.current) {
+        calendarRef.current.getApi().refetchEvents();
+      }
     } catch (error) {
       console.error('Failed to save reservation:', error);
     }
@@ -174,7 +177,6 @@ const CalendarPage = () => {
   return (
     <div className="p-4">
       <FullCalendar
-        key={events.length}
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView={calendarView}
         initialDate={calendarDate}
