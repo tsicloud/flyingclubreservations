@@ -11,10 +11,10 @@ const formatReservations = (data) => data.map(reservation => ({
   title: `${reservation.user_name || 'Reservation'}`,
   start: reservation.start_time,
   end: reservation.end_time,
-  color: reservation.airplane_color || '#2563eb',
+  color: reservation.color || '#2563eb',
   extendedProps: {
     airplaneId: reservation.airplane_id,
-    tailNumber: reservation.airplane_tail_number || 'N/A',
+    tailNumber: reservation.tail_number || 'N/A',
     phoneNumber: reservation.phone_number,
     notes: reservation.notes,
     complianceStatus: reservation.compliance_status,
