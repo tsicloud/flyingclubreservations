@@ -18,7 +18,21 @@ const CalendarPage = () => {
   useEffect(() => {
     const loadReservations = async () => {
       const data = await fetchReservations();
-      setReservations(data);
+      const formatted = data.map(reservation => ({
+        id: reservation.id,
+        title: `${reservation.user_name || 'Reservation'}`,
+        start: reservation.start_time,
+        end: reservation.end_time,
+        color: reservation.airplane_color || '#2563eb',
+        extendedProps: {
+          airplaneId: reservation.airplane_id,
+          tailNumber: reservation.airplane_tail_number,
+          phoneNumber: reservation.phone_number,
+          notes: reservation.notes,
+          complianceStatus: reservation.compliance_status,
+        }
+      }));
+      setReservations(formatted);
     };
     loadReservations();
   }, []);
