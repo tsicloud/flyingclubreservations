@@ -12,7 +12,6 @@ export async function onRequestGet(context) {
          FROM reservations r
          JOIN users u ON r.user_id = u.id
          JOIN airplanes a ON r.airplane_id = a.id
-         WHERE r.start_time >= datetime('now')
          ORDER BY r.start_time ASC`
     ).all();
 
