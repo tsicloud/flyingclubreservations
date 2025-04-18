@@ -142,38 +142,26 @@ export default function ReservationModal({ isOpen, onClose, onSave, onDelete, fo
           <button
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
             onClick={async () => {
-              if (!formData.start_time || !formData.end_time) {
+              if (!formData.start_time || !formData.end_time || !formData.airplane_id) {
                 alert('Please complete all fields before saving.');
                 return;
-              }
-              if (!formData.airplane_id) {
-                if (airplanes.length > 0) {
-                  setFormData((prev) => ({
-                    ...prev,
-                    airplane_id: airplanes[0]?.id || '',
-                  }));
-                } else {
-                  alert('No airplanes available to assign. Please try again.');
-                  return;
-                }
               }
 
               const payload = {
                 airplane_id: formData.airplane_id,
-                user_id: formData.user_id || 'auth0|user1', // fallback only if missing
+                user_id: formData.user_id || 'auth0|user1',
                 start_time: formData.start_time,
                 end_time: formData.end_time,
                 flight_review: formData.flight_review ?? false,
                 notes: formData.notes ?? '',
               };
 
-              if (formData.id) {
-                payload.id = formData.id; // If editing, include the id
-              }
-
               try {
-                const response = await fetch('/api/reservations', {
-                  method: 'POST',
+                const method = formData.id ? 'PUT' : 'POST';
+                const url = formData.id ? `/api/reservations/${formData.id}` : '/api/reservations';
+
+                const response = await fetch(url, {
+                  method,
                   headers: {
                     'Content-Type': 'application/json',
                   },
@@ -186,7 +174,7 @@ export default function ReservationModal({ isOpen, onClose, onSave, onDelete, fo
                   throw new Error(result.message || 'Failed to save reservation');
                 }
 
-                await onSave(); // Ensure save completes before closing
+                await onSave();
                 onClose();
               } catch (error) {
                 console.error(error);

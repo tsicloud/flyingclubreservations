@@ -92,7 +92,7 @@ const CalendarPage = () => {
       id: clickInfo.event.id,
       start_time: clickInfo.event.start,
       end_time: clickInfo.event.end,
-      airplane_id: clickInfo.event.extendedProps.airplaneId,
+      airplane_id: clickInfo.event.extendedProps.airplaneId || '',
       notes: clickInfo.event.extendedProps.notes || '',
     });
     setModalOpen(true);
@@ -123,7 +123,8 @@ const CalendarPage = () => {
   };
 
   const handleReservationSave = async ({ airplaneId, notes }) => {
-    if (!airplaneId) {
+    const airplaneToUse = airplaneId || formData.airplane_id;
+    if (!airplaneToUse) {
       console.error('Airplane ID is required to create a reservation');
       return;
     }
@@ -132,10 +133,9 @@ const CalendarPage = () => {
         id: formData.id, // might be undefined on new, that's OK
         start_time: formData.start_time.toISOString(),
         end_time: formData.end_time.toISOString(),
-        airplane_id: airplaneId,
-        notes: notes || '',
+        airplane_id: airplaneToUse,
+        notes: notes || formData.notes || '',
       });
-      // Short delay to ensure database update is complete
       await new Promise(resolve => setTimeout(resolve, 300));
       const updated = await fetchReservations();
       setReservations(formatReservations(updated));
