@@ -115,8 +115,12 @@ export default function ReservationModal({ isOpen, onClose, onSave, onDelete, fo
               onClick={async () => {
                 if (customConfirm('Are you sure you want to delete this reservation?')) {
                   try {
-                    const response = await fetch(`/api/reservations/${formData.id}`, {
-                      method: 'DELETE',
+                    const response = await fetch('/api/reservations/delete', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({ id: formData.id }),
                     });
                     if (!response.ok) {
                       throw new Error('Failed to delete reservation');
@@ -169,16 +173,13 @@ export default function ReservationModal({ isOpen, onClose, onSave, onDelete, fo
               };
 
               try {
-                const response = await fetch(
-                  formData.id ? `/api/reservations/${formData.id}` : '/api/reservations',
-                  {
-                    method: formData.id ? 'PUT' : 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload),
-                  }
-                );
+                const response = await fetch('/api/reservations', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(payload),
+                });
 
                 if (!response.ok) {
                   throw new Error('Failed to save reservation');

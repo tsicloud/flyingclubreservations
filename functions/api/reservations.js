@@ -103,16 +103,15 @@ export async function onRequestPut(context) {
 }
 
 export async function onRequestDelete(context) {
-  const { env } = context;
+  const { request, env } = context;
 
   if (!env.DB) {
     return new Response("D1 database not configured", { status: 500 });
   }
 
   try {
-    const urlParts = new URL(context.request.url).pathname.split("/");
-    const id = urlParts[urlParts.length - 1];
-    console.log("Parsed ID for deletion:", id);
+    const data = await request.json();
+    const { id } = data; // Get ID from body!
     if (!id) {
       return new Response("Reservation ID is required", { status: 400 });
     }
