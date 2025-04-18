@@ -172,6 +172,7 @@ const CalendarPage = () => {
   return (
     <div className="p-4">
       <FullCalendar
+        key={events.length}
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView={calendarView}
         initialDate={calendarDate}
