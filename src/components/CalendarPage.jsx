@@ -248,7 +248,6 @@ const CalendarPage = () => {
           eventClick={handleEventClick}
           eventDrop={handleEventDrop}
           datesSet={handleDatesSet}
-          ref={calendarRef}
           eventContent={renderEventContent}
         />
       )}
