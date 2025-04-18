@@ -113,13 +113,22 @@ export default function ReservationModal({ isOpen, onClose, onSave, formData = {
                 return;
               }
 
+              const payload = {
+                airplane_id: formData.airplane_id,
+                user_id: formData.user_id || 'auth0|user1', // fallback for development without Auth0
+                start_time: formData.start_time,
+                end_time: formData.end_time,
+                flight_review: formData.flight_review || false,
+                notes: formData.notes || '',
+              };
+
               try {
                 const response = await fetch('/api/reservations', {
                   method: formData.id ? 'PUT' : 'POST',
                   headers: {
                     'Content-Type': 'application/json',
                   },
-                  body: JSON.stringify(formData),
+                  body: JSON.stringify(payload),
                 });
 
                 if (!response.ok) {
