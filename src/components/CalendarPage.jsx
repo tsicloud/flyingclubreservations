@@ -117,9 +117,11 @@ const CalendarPage = () => {
     try {
       await createOrUpdate({
         id,
+        user_id: reservation.user_id || 'auth0|user1',
         start_time: start_time instanceof Date ? start_time.toISOString() : start_time,
         end_time:   end_time   instanceof Date ? end_time.toISOString()   : end_time,
         airplane_id,
+        flight_review: reservation.flight_review ?? false,
         notes: notes || '',
       });
       setModalOpen(false);
