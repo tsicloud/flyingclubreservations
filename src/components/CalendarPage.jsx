@@ -15,6 +15,23 @@ const CalendarPage = () => {
   const [calendarDate, setCalendarDate] = useState(new Date());
   const calendarRef = useRef(null);
 
+  const formatReservations = (data) => {
+    return data.map(reservation => ({
+      id: reservation.id,
+      title: reservation.user_name || 'Reservation',
+      start: reservation.start_time,
+      end: reservation.end_time,
+      color: reservation.airplane_color || '#2563eb',
+      extendedProps: {
+        airplaneId: reservation.airplane_id,
+        tailNumber: reservation.airplane_tail || 'N/A',
+        phoneNumber: reservation.phone_number,
+        notes: reservation.notes,
+        complianceStatus: reservation.compliance_status,
+      }
+    }));
+  };
+
   useEffect(() => {
     const fetchReservationsFromApi = async () => {
       try {
