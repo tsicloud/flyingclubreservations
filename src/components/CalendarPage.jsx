@@ -5,7 +5,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import ReservationModal from './ReservationModal';
 import { fetchReservations, createReservation, updateReservation, deleteReservation } from '../services/api';
-import { isSameDay } from 'date-fns';
+ 
 
 // Map raw reservation data into FullCalendar event objects
 const formatReservations = (data) =>
@@ -55,7 +55,7 @@ const CalendarPage = () => {
     notes: ''
   });
   const [calendarView, setCalendarView] = useState('timeGridWeek');
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  
   const [calendarDate, setCalendarDate] = useState(new Date());
   const calendarRef = useRef(null);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
@@ -188,54 +188,13 @@ const CalendarPage = () => {
 
   return (
     <div className="p-4">
-      {calendarView === 'monthList' ? (
-        <div className="flex">
-          <div className="w-2/3 overflow-auto max-h-[80vh] pr-4">
-            {events
-              .filter(e => e.start >= selectedDate || isSameDay(e.start, selectedDate))
-              .sort((a,b) => a.start - b.start)
-              .map(e => (
-                <div key={e.id} className="mb-4 p-2 border rounded">
-                  <div className="font-semibold">{e.title}</div>
-                  <div>{e.start.toLocaleString()}</div>
-                </div>
-              ))
-            }
-          </div>
-          <div className="w-1/3">
-            <FullCalendar
-              plugins={[dayGridPlugin, interactionPlugin]}
-              initialView="dayGridMonth"
-              initialDate={selectedDate}
-              headerToolbar={false}
-              events={events}
-              dayCellDidMount={info => {
-                const hasEvent = events.some(e => isSameDay(e.start, info.date));
-                if (hasEvent) {
-                  info.el.querySelector('.fc-daygrid-day-number').classList.add('bg-blue-500','rounded-full','text-white');
-                }
-              }}
-              dateClick={({ date }) => {
-                setSelectedDate(date);
-                setCalendarView('timeGridWeek');
-              }}
-            />
-          </div>
-        </div>
-      ) : (
-        <FullCalendar
+      <FullCalendar
           ref={calendarRef}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          customButtons={{
-            monthList: {
-              text: 'month',
-              click: () => setCalendarView('monthList'),
-            }
-          }}
           headerToolbar={{
             left: 'prev,next today',
             center: 'title',
-            right: 'monthList,timeGridWeek,timeGridDay'
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
           }}
           initialView={isSmallScreen ? 'listWeek' : calendarView}
           initialDate={calendarDate}
@@ -250,7 +209,6 @@ const CalendarPage = () => {
           datesSet={handleDatesSet}
           eventContent={renderEventContent}
         />
-      )}
       <ReservationModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
