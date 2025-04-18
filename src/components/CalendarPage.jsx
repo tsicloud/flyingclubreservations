@@ -6,8 +6,45 @@ import interactionPlugin from '@fullcalendar/interaction';
 import ReservationModal from './ReservationModal';
 import { fetchReservations, createReservation, deleteReservation } from '../services/api';
 
+function useReservations() {
+  const [events, setEvents] = useState([]);
+  useEffect(() => {
+    reload();
+  }, []);
+
+  const reload = async () => {
+    try {
+      const data = await fetchReservations();
+      setEvents(formatReservations(data));
+    } catch (error) {
+      console.error("Error loading reservations:", error);
+    }
+  };
+
+  const createOrUpdate = async (payload) => {
+    try {
+      await createReservation(payload);
+      await reload();
+    } catch (error) {
+      console.error("Error saving reservation:", error);
+      throw error;
+    }
+  };
+
+  const remove = async (id) => {
+    try {
+      await deleteReservation(id);
+      await reload();
+    } catch (error) {
+      console.error("Error deleting reservation:", error);
+      throw error;
+    }
+  };
+
+  return { events, reload, createOrUpdate, remove };
+}
+
 const CalendarPage = () => {
-  const [reservations, setReservations] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     start_time: null,
@@ -18,6 +55,7 @@ const CalendarPage = () => {
   const [calendarView, setCalendarView] = useState('timeGridWeek');
   const [calendarDate, setCalendarDate] = useState(new Date());
   const calendarRef = useRef(null);
+  const { events, createOrUpdate, remove } = useReservations();
 
   const formatReservations = (data) => {
     return data.map(reservation => {
@@ -40,36 +78,6 @@ const CalendarPage = () => {
       };
     });
   };
-
-  useEffect(() => {
-    const fetchReservationsFromApi = async () => {
-      try {
-        const data = await fetchReservations();
-        if (Array.isArray(data)) {
-          const formatted = data.map(reservation => ({
-            id: reservation.id,
-            title: `${reservation.user_name || 'Reservation'}`,
-            start: reservation.start_time,
-            end: reservation.end_time,
-            color: reservation.airplane_color || '#2563eb',
-            extendedProps: {
-              airplaneId: reservation.airplane_id,
-              tailNumber: reservation.airplane_tail || 'N/A',
-              phoneNumber: reservation.phone_number,
-              notes: reservation.notes,
-              complianceStatus: reservation.compliance_status,
-            }
-          }));
-          setReservations(formatted);
-        } else {
-          console.warn('Fetched reservations is not an array:', data);
-        }
-      } catch (error) {
-        console.error('Error loading reservations:', error);
-      }
-    };
-    fetchReservationsFromApi();
-  }, []);
 
   const handleDateSelect = (selectInfo) => {
     const start = selectInfo.start;
@@ -107,15 +115,13 @@ const CalendarPage = () => {
     }
     
     try {
-      await createReservation({
+      await createOrUpdate({
         id: dropInfo.event.id,
         start_time: dropInfo.event.start.toISOString(),
         end_time: dropInfo.event.end.toISOString(),
         airplane_id: dropInfo.event.extendedProps.airplaneId,
         notes: dropInfo.event.extendedProps.notes || '',
       });
-      const updated = await fetchReservations();
-      setReservations(formatReservations(updated));
     } catch (error) {
       console.error("Error updating reservation:", error);
       dropInfo.revert();
@@ -125,23 +131,17 @@ const CalendarPage = () => {
   const handleReservationSave = async ({ airplaneId, notes }) => {
     const airplaneToUse = airplaneId || formData.airplane_id;
     if (!airplaneToUse) {
-      console.error('Airplane ID is required to create a reservation');
+      console.error('Airplane ID is required');
       return;
     }
     try {
-      await createReservation({
-        id: formData.id, // might be undefined on new, that's OK
+      await createOrUpdate({
+        id: formData.id,
         start_time: formData.start_time.toISOString(),
         end_time: formData.end_time.toISOString(),
         airplane_id: airplaneToUse,
         notes: notes || formData.notes || '',
       });
-      await new Promise(resolve => setTimeout(resolve, 300));
-      const updated = await fetchReservations();
-      setReservations(formatReservations(updated));
-      if (calendarRef.current) {
-        calendarRef.current.getApi().changeView(calendarView, calendarDate);
-      }
       setModalOpen(false);
     } catch (error) {
       console.error('Failed to save reservation:', error);
@@ -150,10 +150,7 @@ const CalendarPage = () => {
 
   const handleReservationDelete = async (reservationId) => {
     try {
-      await deleteReservation(reservationId);
-      await new Promise(resolve => setTimeout(resolve, 300));
-      const updated = await fetchReservations();
-      setReservations(formatReservations(updated));
+      await remove(reservationId);
       setModalOpen(false);
     } catch (error) {
       console.error('Failed to delete reservation:', error);
@@ -210,7 +207,7 @@ const CalendarPage = () => {
         }}
         selectable={true}
         editable={true}
-        events={reservations}
+        events={events}
         select={handleDateSelect}
         eventClick={handleEventClick}
         eventDrop={handleEventDrop}
