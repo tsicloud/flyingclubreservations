@@ -33,13 +33,13 @@ Message: "${message}"
   const extractedText = aiResponse.response;
 
   // Try to find the JSON part
-  const jsonMatch = extractedText.match(/```([\s\S]*?)```/);
+  const jsonMatch = extractedText.match(/{[\s\S]*}/);
 
   let reservationData = null;
 
-  if (jsonMatch && jsonMatch[1]) {
+  if (jsonMatch && jsonMatch[0]) {
     try {
-      reservationData = JSON.parse(jsonMatch[1].trim());
+      reservationData = JSON.parse(jsonMatch[0].trim());
       console.log("Parsed Reservation Data:", reservationData);
     } catch (error) {
       console.error("Failed to parse JSON:", error);
