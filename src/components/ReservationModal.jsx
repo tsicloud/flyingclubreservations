@@ -25,7 +25,7 @@ export default function ReservationModal({ isOpen, onClose, onSave, formData = {
         end_time: defaultEnd.toISOString().slice(0, 16),
       }));
     }
-  }, [isOpen]);
+  }, [isOpen, setFormData]);
 
   if (!isOpen) return null;
   
