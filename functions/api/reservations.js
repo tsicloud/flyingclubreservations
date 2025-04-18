@@ -16,7 +16,9 @@ export async function onRequestGet(context) {
          ORDER BY r.start_time ASC`
     ).all();
 
-    return Response.json(results);
+    return new Response(JSON.stringify(results), {
+      headers: { 'Content-Type': 'application/json' },
+    });
 }
 
 export async function onRequestPost(context) {
@@ -46,7 +48,9 @@ export async function onRequestPost(context) {
              VALUES (?, ?, ?, ?, ?, ?)`
         ).bind(airplane_id, user_id, start_time, end_time, flight_review, notes);
         const result = await stmt.run();
-        return Response.json({ success: true, id: result.lastRowId });
+        return new Response(JSON.stringify({ success: true, id: result.lastRowId }), {
+          headers: { 'Content-Type': 'application/json' },
+        });
     } catch (error) {
         console.error("Error saving reservation:", error);
         return new Response("Failed to save reservation", { status: 500 });
