@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
 
 export default function ReservationModal({ isOpen, onClose, onSave, formData = {}, setFormData }) {
-  if (!isOpen) return null;
-  
   const [airplanes, setAirplanes] = useState([]);
-  
+
   useEffect(() => {
     if (isOpen) {
       fetch('/api/airplanes')
@@ -29,6 +27,8 @@ export default function ReservationModal({ isOpen, onClose, onSave, formData = {
     }
   }, [isOpen]);
 
+  if (!isOpen) return null;
+  
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
       <div className="bg-white p-6 rounded shadow-md w-96">
