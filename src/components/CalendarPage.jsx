@@ -74,7 +74,8 @@ const CalendarPage = () => {
     <div className="p-4">
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-        initialView="timeGridWeek"
+        initialView={calendarView}
+        initialDate={calendarDate}
         headerToolbar={{
           left: 'prev,next today',
           center: 'title',
