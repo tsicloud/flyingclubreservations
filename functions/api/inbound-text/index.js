@@ -3,8 +3,18 @@ export async function onRequestPost(context) {
   const payload = await request.json();
   console.log("Inbound payload:", payload);
 
-  const from = payload.message?.from || payload.from;
-  const message = payload.message?.text || payload.text || payload.messageText || undefined;
+  let from, message;
+
+  if (Array.isArray(payload)) {
+    const firstEvent = payload[0];
+    if (firstEvent?.message) {
+      from = firstEvent.message.from;
+      message = firstEvent.message.text;
+    }
+  } else {
+    from = payload.message?.from || payload.from;
+    message = payload.message?.text || payload.text || payload.messageText || undefined;
+  }
 
   console.log("Inbound SMS received:", { from, message });
 
