@@ -5,9 +5,6 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import ReservationModal from './ReservationModal';
 import { fetchReservations, createReservation, updateReservation, deleteReservation } from '../services/api';
-import '@fullcalendar/common/main.css';
-import '@fullcalendar/daygrid/main.css';
-import '@fullcalendar/timegrid/main.css';
 
 // Map raw reservation data into FullCalendar event objects
 const formatReservations = (data) =>
