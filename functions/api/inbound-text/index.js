@@ -34,13 +34,8 @@ Extract the following fields from this SMS message:
 TODAY'S DATE: ${todayISO}
 
 **Date Parsing Rules:**
-- If the user mentions a full date (e.g., "May 2", "4/27", "July 4th"), use that date.
-- If the user mentions only a weekday (e.g., "Sunday", "next Tuesday"):
-  - Calculate the next occurrence of that weekday after TODAY.
-  - Example if TODAY is Thursday 2025-04-18:
-    - "Sunday" → 2025-04-20
-    - "next Sunday" → 2025-04-20
-    - "next Friday" → 2025-04-25
+- If the user mentions a full date (e.g., "May 2", "4/27", "July 4th", "Sunday 4/27", "Sunday the 27th"), use that date and ignore the weekday.
+- If the user mentions only a weekday (e.g., "Sunday", "next Tuesday"), calculate the next occurrence of that weekday after TODAY.
 - Always include the full year, month, and day.
 - Assume the reservation is for this year unless another year is specified.
 - If end date is not specified, assume it is the same as the start date.
