@@ -6,21 +6,6 @@ import interactionPlugin from '@fullcalendar/interaction';
 import ReservationModal from './ReservationModal';
 import { fetchReservations, createReservation, deleteReservation } from '../services/api';
 
-const formatReservations = (data) => data.map(reservation => ({
-  id: reservation.id,
-  title: `${reservation.user_name || 'Reservation'}`,
-  start: reservation.start_time,
-  end: reservation.end_time,
-  color: reservation.color || '#2563eb',
-  extendedProps: {
-    airplaneId: reservation.airplane_id,
-    tailNumber: reservation.tail_number || 'N/A',
-    phoneNumber: reservation.phone_number,
-    notes: reservation.notes,
-    complianceStatus: reservation.compliance_status,
-  }
-}));
-
 const CalendarPage = () => {
   const [reservations, setReservations] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -31,11 +16,24 @@ const CalendarPage = () => {
   const calendarRef = useRef(null);
 
   useEffect(() => {
-    const loadReservations = async () => {
+    const fetchReservationsFromApi = async () => {
       try {
         const data = await fetchReservations();
         if (Array.isArray(data)) {
-          const formatted = formatReservations(data);
+          const formatted = data.map(reservation => ({
+            id: reservation.id,
+            title: `${reservation.user_name || 'Reservation'}`,
+            start: reservation.start_time,
+            end: reservation.end_time,
+            color: reservation.airplane_color || '#2563eb',
+            extendedProps: {
+              airplaneId: reservation.airplane_id,
+              tailNumber: reservation.airplane_tail || 'N/A',
+              phoneNumber: reservation.phone_number,
+              notes: reservation.notes,
+              complianceStatus: reservation.compliance_status,
+            }
+          }));
           setReservations(formatted);
         } else {
           console.warn('Fetched reservations is not an array:', data);
@@ -44,12 +42,19 @@ const CalendarPage = () => {
         console.error('Error loading reservations:', error);
       }
     };
-    loadReservations();
+    fetchReservationsFromApi();
   }, []);
 
   const handleDateSelect = (selectInfo) => {
-    setSelectedStart(selectInfo.start);
-    setSelectedEnd(selectInfo.end);
+    const start = selectInfo.start;
+    let end = selectInfo.end;
+
+    if (!selectInfo.allDay && start.getTime() === end.getTime()) {
+      end = new Date(start.getTime() + 2 * 60 * 60 * 1000); // Default to 2 hours
+    }
+
+    setSelectedStart(start);
+    setSelectedEnd(end);
     setModalOpen(true);
   };
 
@@ -87,7 +92,7 @@ const CalendarPage = () => {
   };
 
   const renderEventContent = (eventInfo) => {
-    const bgColor = eventInfo.event.backgroundColor || '#2563eb';
+    const bgColor = eventInfo.event.backgroundColor || eventInfo.event.extendedProps.color || '#2563eb';
     const tailNumber = eventInfo.event.extendedProps.tailNumber || 'N/A';
     return (
       <div
