@@ -25,7 +25,7 @@ const CalendarPage = () => {
   const [reservations, setReservations] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedStart, setSelectedStart] = useState(null);
-  const [selectedEnd, setSelectedEnd] = useState(null);here's
+  const [selectedEnd, setSelectedEnd] = useState(null);
   const [calendarView, setCalendarView] = useState('timeGridWeek');
   const [calendarDate, setCalendarDate] = useState(new Date());
   const calendarRef = useRef(null);
