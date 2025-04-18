@@ -6,6 +6,21 @@ import interactionPlugin from '@fullcalendar/interaction';
 import ReservationModal from './ReservationModal';
 import { fetchReservations, createReservation, deleteReservation } from '../services/api';
 
+const formatReservations = (data) => data.map(reservation => ({
+  id: reservation.id,
+  title: `${reservation.user_name || 'Reservation'}`,
+  start: reservation.start_time,
+  end: reservation.end_time,
+  color: reservation.airplane_color || '#2563eb',
+  extendedProps: {
+    airplaneId: reservation.airplane_id,
+    tailNumber: reservation.airplane_tail_number,
+    phoneNumber: reservation.phone_number,
+    notes: reservation.notes,
+    complianceStatus: reservation.compliance_status,
+  }
+}));
+
 const CalendarPage = () => {
   const [reservations, setReservations] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -18,20 +33,7 @@ const CalendarPage = () => {
   useEffect(() => {
     const loadReservations = async () => {
       const data = await fetchReservations();
-      const formatted = data.map(reservation => ({
-        id: reservation.id,
-        title: `${reservation.user_name || 'Reservation'}`,
-        start: reservation.start_time,
-        end: reservation.end_time,
-        color: reservation.airplane_color || '#2563eb',
-        extendedProps: {
-          airplaneId: reservation.airplane_id,
-          tailNumber: reservation.airplane_tail_number,
-          phoneNumber: reservation.phone_number,
-          notes: reservation.notes,
-          complianceStatus: reservation.compliance_status,
-        }
-      }));
+      const formatted = formatReservations(data);
       setReservations(formatted);
     };
     loadReservations();
@@ -47,14 +49,14 @@ const CalendarPage = () => {
     if (window.confirm(`Are you sure you want to delete this reservation?`)) {
       await deleteReservation(clickInfo.event.id);
       const updated = await fetchReservations();
-      setReservations(updated);
+      setReservations(formatReservations(updated));
     }
   };
 
   const handleReservationSave = async ({ airplaneId, notes }) => {
     await createReservation({ start: selectedStart, end: selectedEnd, airplaneId, notes });
     const updated = await fetchReservations();
-    setReservations(updated);
+    setReservations(formatReservations(updated));
     setModalOpen(false);
   };
 
@@ -64,7 +66,7 @@ const CalendarPage = () => {
   };
 
   const renderEventContent = (eventInfo) => {
-    const bgColor = eventInfo.event.extendedProps.color || '#2563eb';
+    const bgColor = eventInfo.event.backgroundColor || '#2563eb';
     return (
       <div
         style={{
