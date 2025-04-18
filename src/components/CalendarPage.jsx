@@ -137,6 +137,9 @@ const CalendarPage = () => {
     try {
       await remove(reservationId);
       setModalOpen(false);
+      if (calendarRef.current) {
+        calendarRef.current.getApi().refetchEvents();
+      }
     } catch (error) {
       console.error('Failed to delete reservation:', error);
     }
@@ -185,6 +188,8 @@ const CalendarPage = () => {
           center: 'title',
           right: 'dayGridMonth,timeGridWeek,timeGridDay',
         }}
+        scrollTime="00:00"
+        aspectRatio={1.35}
         selectable={true}
         editable={true}
         events={events}
