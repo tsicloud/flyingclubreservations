@@ -1,7 +1,33 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
-export default function ReservationModal({ isOpen, onClose, onSave, formData = {}, setFormData, airplanes = [] }) {
+export default function ReservationModal({ isOpen, onClose, onSave, formData = {}, setFormData }) {
   if (!isOpen) return null;
+  
+  const [airplanes, setAirplanes] = useState([]);
+  
+  useEffect(() => {
+    if (isOpen) {
+      fetch('/api/airplanes')
+        .then((res) => res.json())
+        .then((data) => setAirplanes(data))
+        .catch((err) => console.error('Failed to fetch airplanes:', err));
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen && (!formData.start_time || !formData.end_time)) {
+      const now = new Date();
+      const defaultStart = new Date(now);
+      const defaultEnd = new Date(now);
+      defaultEnd.setHours(now.getHours() + 2);
+
+      setFormData((prev) => ({
+        ...prev,
+        start_time: defaultStart.toISOString().slice(0, 16),
+        end_time: defaultEnd.toISOString().slice(0, 16),
+      }));
+    }
+  }, [isOpen]);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
