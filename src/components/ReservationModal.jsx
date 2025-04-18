@@ -1,5 +1,16 @@
 import React, { useEffect, useState } from 'react';
 
+const formatDateForInput = (date) => {
+  if (!date) return '';
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
+
 export default function ReservationModal({ isOpen, onClose, onSave, formData = {}, setFormData }) {
   const [airplanes, setAirplanes] = useState([]);
 
@@ -21,8 +32,8 @@ export default function ReservationModal({ isOpen, onClose, onSave, formData = {
 
       setFormData((prev) => ({
         ...prev,
-        start_time: defaultStart.toISOString().slice(0, 16),
-        end_time: defaultEnd.toISOString().slice(0, 16),
+        start_time: defaultStart.toISOString(),
+        end_time: defaultEnd.toISOString(),
       }));
     }
   }, [isOpen, formData.start_time, formData.end_time, setFormData]);
@@ -59,8 +70,8 @@ export default function ReservationModal({ isOpen, onClose, onSave, formData = {
           <input
             type="datetime-local"
             step="900"
-            value={formData.start_time}
-            onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
+            value={formatDateForInput(formData.start_time)}
+            onChange={(e) => setFormData({ ...formData, start_time: new Date(e.target.value) })}
             className="w-full border rounded p-2"
           />
         </div>
@@ -70,8 +81,8 @@ export default function ReservationModal({ isOpen, onClose, onSave, formData = {
           <input
             type="datetime-local"
             step="900"
-            value={formData.end_time}
-            onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
+            value={formatDateForInput(formData.end_time)}
+            onChange={(e) => setFormData({ ...formData, end_time: new Date(e.target.value) })}
             className="w-full border rounded p-2"
           />
         </div>
