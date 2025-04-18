@@ -204,7 +204,7 @@ const CalendarPage = () => {
           </div>
           <div className="w-1/3">
             <FullCalendar
-              plugins={[dayGridPlugin]}
+              plugins={[dayGridPlugin, interactionPlugin]}
               initialView="dayGridMonth"
               initialDate={selectedDate}
               headerToolbar={false}
