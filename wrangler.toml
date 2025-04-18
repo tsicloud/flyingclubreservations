@@ -10,3 +10,10 @@ database_id = "bd0a3c07-e433-4799-b92f-636d8ef5a1b7"
 [functions]
 directory = "./functions"
 external_node_modules = ["@cloudflare/ai"]
+
+[build]
+upload.format = "directory"
+upload.dir = "build"
+
+[pages]
+build_output_dir = "./build"
