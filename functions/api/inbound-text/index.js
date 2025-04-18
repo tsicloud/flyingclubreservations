@@ -1,9 +1,10 @@
 export async function onRequestPost(context) {
   const { request, env } = context;
   const payload = await request.json();
+  console.log("Inbound payload:", payload);
 
-  const from = payload.message?.from || payload.from;  // Support Bandwidth and curl formats
-  const message = payload.message?.text || payload.text;  // Support Bandwidth and curl formats
+  const from = payload.message?.from || payload.from;
+  const message = payload.message?.text || payload.text || payload.messageText || undefined;
 
   console.log("Inbound SMS received:", { from, message });
 
