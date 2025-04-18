@@ -72,6 +72,17 @@ export default function ReservationModal({ isOpen, onClose, onSave, formData = {
           />
         </div>
 
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">Notes</label>
+          <textarea
+            maxLength={250}
+            value={formData.notes || ''}
+            onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+            className="w-full border rounded p-2"
+            placeholder="Optional notes (e.g., KTWF > KSUN > KTWF)"
+          />
+        </div>
+
         <div className="flex justify-end space-x-2">
           <button
             className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"

@@ -13,7 +13,7 @@ export async function fetchReservations() {
   
 export async function createReservation(reservationData) {
   try {
-    const response = await fetch("/reservations", {
+    const response = await fetch("/api/reservations", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -32,7 +32,7 @@ export async function createReservation(reservationData) {
   
 export async function deleteReservation(reservationId) {
   try {
-    const response = await fetch(`/reservations/${reservationId}`, {
+    const response = await fetch(`/api/reservations/${reservationId}`, {
       method: "DELETE",
     });
     if (!response.ok) {
@@ -47,7 +47,7 @@ export async function deleteReservation(reservationId) {
   
 export async function updateReservation(reservationId, updatedData) {
   try {
-    const response = await fetch(`/reservations/${reservationId}`, {
+    const response = await fetch(`/api/reservations/${reservationId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

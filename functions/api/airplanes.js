@@ -1,4 +1,4 @@
-import { getD1Database } from '../../_utils/database';
+import { getD1Database } from '../_utils/database';
 
 export async function onRequest(context) {
   const db = getD1Database(context);

@@ -7,7 +7,7 @@ export async function onRequestGet(context) {
     }
 
     const { results } = await env.DB.prepare(
-      `SELECT r.id, r.start_time, r.end_time, r.flight_review,
+      `SELECT r.id, r.start_time, r.end_time, r.flight_review, r.notes,
               u.name AS user_name, 
               a.tail_number AS airplane_tail,
               a.color AS airplane_color
@@ -31,12 +31,12 @@ export async function onRequestPost(context) {
     try {
       const data = await request.json();
 
-      const { airplane_id, user_id, start_time, end_time, flight_review } = data;
+      const { airplane_id, user_id, start_time, end_time, flight_review, notes } = data;
 
       const stmt = env.DB.prepare(
-        `INSERT INTO reservations (airplane_id, user_id, start_time, end_time, flight_review)
-         VALUES (?, ?, ?, ?, ?)`
-      ).bind(airplane_id, user_id, start_time, end_time, flight_review || false);
+        `INSERT INTO reservations (airplane_id, user_id, start_time, end_time, flight_review, notes)
+         VALUES (?, ?, ?, ?, ?, ?)`
+      ).bind(airplane_id, user_id, start_time, end_time, flight_review || false, notes || "");
 
       const result = await stmt.run();
 
