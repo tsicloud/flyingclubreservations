@@ -1,4 +1,3 @@
-
 export async function onRequestPost(context) {
   const { request, env } = context;
   const payload = await request.json();
@@ -17,7 +16,7 @@ You are an AI agent for a flying club. Extract the following information from th
 - Start Date
 - Start Time
 - End Date (if mentioned; otherwise assume same day)
-- End Time
+- End Time (if not end time; 11:59PM)
 
 Return the result as JSON with fields: tail_number, start_date, start_time, end_date, end_time.
 
@@ -30,6 +29,24 @@ Message: "${message}"
   });
 
   console.log("AI parsed:", aiResponse);
+
+  const extractedText = aiResponse.response;
+
+  // Try to find the JSON part
+  const jsonMatch = extractedText.match(/```json([\s\S]*?)```/);
+
+  let reservationData = null;
+
+  if (jsonMatch && jsonMatch[1]) {
+    try {
+      reservationData = JSON.parse(jsonMatch[1].trim());
+      console.log("Parsed Reservation Data:", reservationData);
+    } catch (error) {
+      console.error("Failed to parse JSON:", error);
+    }
+  } else {
+    console.error("No JSON block found in AI response.");
+  }
 
   return new Response("Received", { status: 200 });
 }
