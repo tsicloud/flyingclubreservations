@@ -71,7 +71,7 @@ export default function ReservationModal({ isOpen, onClose, onSave, formData = {
             type="datetime-local"
             step="900"
             value={formatDateForInput(formData.start_time)}
-            onChange={(e) => setFormData({ ...formData, start_time: new Date(e.target.value) })}
+            onChange={(e) => setFormData({ ...formData, start_time: new Date(e.target.value).toISOString() })}
             className="w-full border rounded p-2"
           />
         </div>
@@ -82,7 +82,7 @@ export default function ReservationModal({ isOpen, onClose, onSave, formData = {
             type="datetime-local"
             step="900"
             value={formatDateForInput(formData.end_time)}
-            onChange={(e) => setFormData({ ...formData, end_time: new Date(e.target.value) })}
+            onChange={(e) => setFormData({ ...formData, end_time: new Date(e.target.value).toISOString() })}
             className="w-full border rounded p-2"
           />
         </div>
@@ -112,7 +112,11 @@ export default function ReservationModal({ isOpen, onClose, onSave, formData = {
                 alert('Please complete all fields before saving.');
                 return;
               }
-              onSave();
+              onSave({
+                ...formData,
+                start_time: new Date(formData.start_time).toISOString(),
+                end_time: new Date(formData.end_time).toISOString(),
+              });
             }}
           >
             Save

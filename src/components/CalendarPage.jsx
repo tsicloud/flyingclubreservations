@@ -96,6 +96,30 @@ const CalendarPage = () => {
     }
   };
 
+  const handleEventDrop = async (dropInfo) => {
+    const currentUserName = "John Doe"; // TODO: Replace with dynamic logged-in user later
+    if (dropInfo.event.title !== currentUserName) {
+      alert("You can only move your own reservations!");
+      dropInfo.revert();
+      return;
+    }
+    
+    try {
+      await createReservation({
+        id: dropInfo.event.id,
+        start_time: dropInfo.event.start.toISOString(),
+        end_time: dropInfo.event.end.toISOString(),
+        airplane_id: dropInfo.event.extendedProps.airplaneId,
+        notes: dropInfo.event.extendedProps.notes || '',
+      });
+      const updated = await fetchReservations();
+      setReservations(formatReservations(updated));
+    } catch (error) {
+      console.error("Error updating reservation:", error);
+      dropInfo.revert();
+    }
+  };
+
   const handleReservationSave = async ({ airplaneId, notes }) => {
     if (!airplaneId) {
       console.error('Airplane ID is required to create a reservation');
@@ -103,6 +127,7 @@ const CalendarPage = () => {
     }
     try {
       await createReservation({
+        id: formData.id, // might be undefined on new, that's OK
         start_time: formData.start_time.toISOString(),
         end_time: formData.end_time.toISOString(),
         airplane_id: airplaneId,
@@ -160,10 +185,11 @@ const CalendarPage = () => {
           right: 'dayGridMonth,timeGridWeek,timeGridDay',
         }}
         selectable={true}
-        editable={false}
+        editable={true}
         events={reservations}
         select={handleDateSelect}
         eventClick={handleEventClick}
+        eventDrop={handleEventDrop}
         datesSet={handleDatesSet}
         ref={calendarRef}
         eventContent={renderEventContent}
