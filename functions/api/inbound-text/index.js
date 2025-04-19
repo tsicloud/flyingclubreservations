@@ -1,3 +1,4 @@
+import { DateTime } from "luxon";
 export async function onRequestPost(context) {
   const { request, env } = context;
   const payload = await request.json();
@@ -98,8 +99,8 @@ MESSAGE: "${message}"
 
       const airplaneId = findAirplane.id;
 
-      const startDateTime = new Date(`${reservationData.start_date}T${reservationData.start_time}`).toISOString();
-      const endDateTime = new Date(`${reservationData.end_date}T${reservationData.end_time}`).toISOString();
+      const startDateTime = DateTime.fromISO(`${reservationData.start_date}T${reservationData.start_time}`, { zone: 'America/Denver' }).toUTC().toISO();
+      const endDateTime = DateTime.fromISO(`${reservationData.end_date}T${reservationData.end_time}`, { zone: 'America/Denver' }).toUTC().toISO();
 
       await env.DB.prepare(`
         INSERT INTO reservations (airplane_id, user_id, start_time, end_time, notes)
