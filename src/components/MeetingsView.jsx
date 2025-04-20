@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
+import { Menu } from '@headlessui/react';
 import {
   CalendarIcon,
   ChevronLeftIcon,
@@ -86,16 +86,16 @@ export default function MeetingsView({ events, selectedDate, onSelectDate }) {
                 </dl>
               </div>
               <Menu as="div" className="absolute top-6 right-0 xl:relative xl:top-auto xl:right-auto xl:self-center">
-                <MenuButton className="-m-2 flex items-center rounded-full p-2 text-gray-500 hover:text-gray-600">
+                <Menu.Button className="-m-2 flex items-center rounded-full p-2 text-gray-500 hover:text-gray-600">
                   <span className="sr-only">Open options</span>
                   <EllipsisHorizontalIcon className="h-5 w-5" aria-hidden="true" />
-                </MenuButton>
-                <MenuItems
+                </Menu.Button>
+                <Menu.Items
                   transition
                   className="absolute right-0 z-10 mt-2 w-36 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none"
                 >
                   <div className="py-1">
-                    <MenuItem>
+                    <Menu.Item>
                       {({ active }) => (
                         <button
                           onClick={() => onSelectDate(evt.start)}
@@ -104,9 +104,9 @@ export default function MeetingsView({ events, selectedDate, onSelectDate }) {
                           Go to date
                         </button>
                       )}
-                    </MenuItem>
+                    </Menu.Item>
                   </div>
-                </MenuItems>
+                </Menu.Items>
               </Menu>
             </li>
           );
