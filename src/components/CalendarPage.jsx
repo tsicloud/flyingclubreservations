@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import ReservationModal from './ReservationModal';
 import MonthGrid from './MonthGrid';
 import WeekView from './WeekView';
@@ -6,7 +6,6 @@ import DayView from './DayView';
 import MeetingsView from './MeetingsView';
 import { isSameDay } from 'date-fns';
 import { fetchReservations, createReservation, updateReservation, deleteReservation } from '../services/api';
- 
 
 // Map raw reservation data into FullCalendar event objects
 const formatReservations = (data) =>
@@ -28,13 +27,13 @@ const formatReservations = (data) =>
 // Custom hook to manage fetch/create/update/delete
 function useReservations() {
   const [events, setEvents] = useState([]);
-  useEffect(() => { reload(); }, []);
   const reload = async () => {
     try {
       const data = await fetchReservations();
       setEvents(formatReservations(data));
     } catch (e) { console.error("Error loading reservations", e); }
   };
+  useEffect(() => { reload(); }, []);
   const createOrUpdate = async payload => {
     if (payload.id) {
       await updateReservation(payload.id, payload);
@@ -55,68 +54,8 @@ const CalendarPage = () => {
     airplane_id: '',
     notes: ''
   });
-  const [calendarView, setCalendarView] = useState('timeGridWeek');
-  
-  const [calendarDate, setCalendarDate] = useState(new Date());
   const [viewMode, setViewMode] = useState('week'); // 'month' | 'week' | 'day' | 'meetings'
-  const calendarRef = useRef(null);
-  const [isSmallScreen, setIsSmallScreen] = useState(false);
-  useEffect(() => {
-    const checkScreen = () => setIsSmallScreen(window.innerWidth < 640);
-    checkScreen();
-    window.addEventListener('resize', checkScreen);
-    return () => window.removeEventListener('resize', checkScreen);
-  }, []);
   const { events, createOrUpdate, remove } = useReservations();
-
-  const handleDateSelect = (selectInfo) => {
-    const start = selectInfo.start;
-    let end = selectInfo.end || new Date(start.getTime() + 2 * 60 * 60 * 1000); // Default to 2 hours if end not provided
-    if (start.getTime() === end.getTime()) {
-      end = new Date(start.getTime() + 2 * 60 * 60 * 1000);
-    }
-
-    setFormData({
-      start_time: start,
-      end_time: end,
-      airplane_id: '',
-      notes: ''
-    });
-    setModalOpen(true);
-  };
-
-  const handleEventClick = (clickInfo) => {
-    setFormData({
-      id: clickInfo.event.id,
-      start_time: clickInfo.event.start,
-      end_time: clickInfo.event.end,
-      airplane_id: clickInfo.event.extendedProps.airplaneId || '',
-      notes: clickInfo.event.extendedProps.notes || '',
-    });
-    setModalOpen(true);
-  };
-
-  const handleEventDrop = async (dropInfo) => {
-    const currentUserName = "John Doe"; // TODO: Replace with dynamic logged-in user later
-    if (dropInfo.event.title !== currentUserName) {
-      alert("You can only move your own reservations!");
-      dropInfo.revert();
-      return;
-    }
-    
-    try {
-      await createOrUpdate({
-        id: dropInfo.event.id,
-        start_time: dropInfo.event.start.toISOString(),
-        end_time: dropInfo.event.end.toISOString(),
-        airplane_id: dropInfo.event.extendedProps.airplaneId,
-        notes: dropInfo.event.extendedProps.notes || '',
-      });
-    } catch (error) {
-      console.error("Error updating reservation:", error);
-      dropInfo.revert();
-    }
-  };
 
   const handleReservationSave = async reservation => {
     // Ensure we have the full reservation object from the modal
@@ -136,9 +75,6 @@ const CalendarPage = () => {
         notes: notes || '',
       });
       setModalOpen(false);
-      if (calendarRef.current) {
-        calendarRef.current.getApi().refetchEvents();
-      }
     } catch (error) {
       console.error('Failed to save reservation:', error);
     }
@@ -148,44 +84,9 @@ const CalendarPage = () => {
     try {
       await remove(reservationId);
       setModalOpen(false);
-      if (calendarRef.current) {
-        calendarRef.current.getApi().refetchEvents();
-      }
     } catch (error) {
       console.error('Failed to delete reservation:', error);
     }
-  };
-
-  const handleDatesSet = (arg) => {
-    setCalendarDate(arg.start);
-    setCalendarView(arg.view.type);
-  };
-
-  const renderEventContent = (eventInfo) => {
-    const bgColor = eventInfo.event.backgroundColor || eventInfo.event.extendedProps.color || '#2563eb';
-    const tailNumber = eventInfo.event.extendedProps.tailNumber || 'N/A';
-    return (
-      <div
-        style={{
-          backgroundColor: bgColor,
-          padding: '6px 8px',
-          borderRadius: '4px',
-          color: 'white',
-          textAlign: 'left',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-          fontSize: '0.9rem',
-        }}
-      >
-        <div style={{ fontWeight: '600' }}>
-          {tailNumber}
-        </div>
-        <div style={{ fontSize: '0.8rem', marginTop: '2px' }}>
-          {eventInfo.event.title}
-        </div>
-      </div>
-    );
   };
 
   return (
