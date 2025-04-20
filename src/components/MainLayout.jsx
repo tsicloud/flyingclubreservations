@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, Outlet } from 'react-router-dom';
-import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/react';
+import { Menu } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 
 const MainLayout = () => {
@@ -24,15 +24,15 @@ const MainLayout = () => {
             {/* User menu */}
             <div className="flex items-center">
               <Menu as="div" className="relative">
-                <MenuButton className="flex items-center rounded-full bg-gray-200 p-2 focus:outline-none">
+                <Menu.Button className="flex items-center rounded-full bg-gray-200 p-2 focus:outline-none">
                   <span className="sr-only">Open user menu</span>
                   <span className="h-8 w-8 flex items-center justify-center rounded-full bg-blue-600 text-white font-medium">
                     U
                   </span>
                   <ChevronDownIcon className="ml-1 h-5 w-5 text-gray-600" aria-hidden="true" />
-                </MenuButton>
-                <MenuItems className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-none">
-                  <MenuItem>
+                </Menu.Button>
+                <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-none">
+                  <Menu.Item>
                     {({ active }) => (
                       <Link
                         to="/profile"
@@ -41,8 +41,8 @@ const MainLayout = () => {
                         Profile
                       </Link>
                     )}
-                  </MenuItem>
-                  <MenuItem>
+                  </Menu.Item>
+                  <Menu.Item>
                     {({ active }) => (
                       <button
                         type="button"
@@ -52,8 +52,8 @@ const MainLayout = () => {
                         Sign out
                       </button>
                     )}
-                  </MenuItem>
-                </MenuItems>
+                  </Menu.Item>
+                </Menu.Items>
               </Menu>
             </div>
           </div>
