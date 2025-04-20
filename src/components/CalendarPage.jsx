@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import FullCalendar from '@fullcalendar/react';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import interactionPlugin from '@fullcalendar/interaction';
 import ReservationModal from './ReservationModal';
+import MonthGrid from './MonthGrid';
+import WeekView from './WeekView';
+import DayView from './DayView';
+import MeetingsView from './MeetingsView';
+import { isSameDay } from 'date-fns';
 import { fetchReservations, createReservation, updateReservation, deleteReservation } from '../services/api';
  
 
@@ -57,6 +58,7 @@ const CalendarPage = () => {
   const [calendarView, setCalendarView] = useState('timeGridWeek');
   
   const [calendarDate, setCalendarDate] = useState(new Date());
+  const [viewMode, setViewMode] = useState('week'); // 'month' | 'week' | 'day' | 'meetings'
   const calendarRef = useRef(null);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   useEffect(() => {
@@ -188,27 +190,76 @@ const CalendarPage = () => {
 
   return (
     <div className="p-4">
-      <FullCalendar
-          ref={calendarRef}
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          headerToolbar={{
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+      <div className="mb-4 flex space-x-2">
+        <button
+          className={`px-3 py-1 rounded ${viewMode === 'month' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+          onClick={() => setViewMode('month')}
+        >
+          Month
+        </button>
+        <button
+          className={`px-3 py-1 rounded ${viewMode === 'week' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+          onClick={() => setViewMode('week')}
+        >
+          Week
+        </button>
+        <button
+          className={`px-3 py-1 rounded ${viewMode === 'day' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+          onClick={() => setViewMode('day')}
+        >
+          Day
+        </button>
+        <button
+          className={`px-3 py-1 rounded ${viewMode === 'meetings' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+          onClick={() => setViewMode('meetings')}
+        >
+          Meetings
+        </button>
+      </div>
+      {viewMode === 'month' && (
+        <MonthGrid events={events} onSelectDate={date => { setCalendarDate(date); setViewMode('week'); }} />
+      )}
+      {viewMode === 'week' && (
+        <WeekView
+          date={calendarDate}
+          events={events.filter(e => isSameDay(e.start, calendarDate))}
+          onEdit={evt => {
+            setFormData({
+              id: evt.id,
+              start_time: evt.start,
+              end_time: evt.end,
+              airplane_id: evt.extendedProps.airplaneId || '',
+              notes: evt.extendedProps.notes || '',
+            });
+            setModalOpen(true);
           }}
-          initialView={isSmallScreen ? 'listWeek' : calendarView}
-          initialDate={calendarDate}
-          scrollTime="00:00"
-          aspectRatio={isSmallScreen ? 0.5 : 1.35}
-          selectable
-          editable
-          events={events}
-          select={handleDateSelect}
-          eventClick={handleEventClick}
-          eventDrop={handleEventDrop}
-          datesSet={handleDatesSet}
-          eventContent={renderEventContent}
+          onDelete={handleReservationDelete}
         />
+      )}
+      {viewMode === 'day' && (
+        <DayView
+          date={calendarDate}
+          events={events.filter(e => isSameDay(e.start, calendarDate))}
+          onEdit={evt => {
+            setFormData({
+              id: evt.id,
+              start_time: evt.start,
+              end_time: evt.end,
+              airplane_id: evt.extendedProps.airplaneId || '',
+              notes: evt.extendedProps.notes || '',
+            });
+            setModalOpen(true);
+          }}
+          onDelete={handleReservationDelete}
+        />
+      )}
+      {viewMode === 'meetings' && (
+        <MeetingsView
+          events={events}
+          selectedDate={calendarDate}
+          onSelectDate={date => setCalendarDate(date)}
+        />
+      )}
       <ReservationModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
