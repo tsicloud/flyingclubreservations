@@ -18,18 +18,22 @@ import {
  * - initialDate (optional): Date to display the month of; defaults to today.
  */
 export default function MonthGrid({
-  events,
-  onSelectDate,
+  events = [],
+  onSelectDate = () => {},
   initialDate = new Date(),
 }) {
+  // Ensure initialDate is a Date
+  const parsedInitialDate = initialDate instanceof Date ? initialDate : new Date(initialDate);
   // Build a map of dates (YYYY-MM-DD) to event counts
   const eventsByDate = events.reduce((map, evt) => {
-    const key = format(evt.start, 'yyyy-MM-dd');
+    const evtDate = evt.start instanceof Date ? evt.start : new Date(evt.start);
+    if (isNaN(evtDate)) return map;
+    const key = format(evtDate, 'yyyy-MM-dd');
     map[key] = map[key] ? map[key] + 1 : 1;
     return map;
   }, {});
 
-  const monthStart = startOfMonth(initialDate);
+  const monthStart = startOfMonth(parsedInitialDate);
   const monthEnd = endOfMonth(monthStart);
   const gridStart = startOfWeek(monthStart, { weekStartsOn: 0 });
   const gridEnd = endOfWeek(monthEnd, { weekStartsOn: 0 });

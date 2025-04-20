@@ -7,7 +7,12 @@ import {
   EllipsisHorizontalIcon,
   MapPinIcon,
 } from '@heroicons/react/20/solid';
-import { format, isSameMonth, isSameDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays } from 'date-fns';
+import { format, isSameMonth, isSameDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, parseISO } from 'date-fns';
+
+// Convert ISO string or Date to valid Date
+function toDate(d) {
+  return d instanceof Date ? d : parseISO(d);
+}
 
 /**
  * MeetingsView displays upcoming reservations ("meetings") alongside a mini month calendar.
@@ -18,20 +23,21 @@ import { format, isSameMonth, isSameDay, startOfMonth, endOfMonth, startOfWeek, 
  * - onSelectDate: function(Date) called when clicking a day in the mini calendar
  */
 export default function MeetingsView({ events, selectedDate, onSelectDate }) {
+  const selDate = toDate(selectedDate);
   // Build upcoming meetings list (events on or after selectedDate)
   const upcoming = events
     .filter(evt => {
-      const evtDate = evt.start instanceof Date ? evt.start : new Date(evt.start);
-      return evtDate >= selectedDate || isSameDay(evtDate, selectedDate);
+      const evtDate = toDate(evt.start);
+      return evtDate >= selDate || isSameDay(evtDate, selDate);
     })
     .sort((a, b) => {
-      const aDate = a.start instanceof Date ? a.start : new Date(a.start);
-      const bDate = b.start instanceof Date ? b.start : new Date(b.start);
+      const aDate = toDate(a.start);
+      const bDate = toDate(b.start);
       return aDate - bDate;
     });
 
   // Build mini-calendar dates for the month
-  const monthStart = startOfMonth(selectedDate);
+  const monthStart = startOfMonth(selDate);
   const monthEnd = endOfMonth(monthStart);
   const gridStart = startOfWeek(monthStart, { weekStartsOn: 0 });
   const gridEnd = endOfWeek(monthEnd, { weekStartsOn: 0 });
@@ -45,7 +51,7 @@ export default function MeetingsView({ events, selectedDate, onSelectDate }) {
 
   // Count events per day
   const eventsByDate = events.reduce((map, evt) => {
-    const key = format(evt.start instanceof Date ? evt.start : new Date(evt.start), 'yyyy-MM-dd');
+    const key = format(toDate(evt.start), 'yyyy-MM-dd');
     map[key] = (map[key] || 0) + 1;
     return map;
   }, {});
@@ -59,8 +65,9 @@ export default function MeetingsView({ events, selectedDate, onSelectDate }) {
       {/* List of upcoming meetings */}
       <ol className="mt-4 divide-y divide-gray-100 text-sm lg:col-span-7 xl:col-span-8">
         {upcoming.map((evt) => {
-          const dateStr = format(evt.start instanceof Date ? evt.start : new Date(evt.start), 'MMMM d, yyyy');
-          const timeStr = format(evt.start instanceof Date ? evt.start : new Date(evt.start), 'h:mm a');
+          const d = toDate(evt.start);
+          const dateStr = format(d, 'MMMM d, yyyy');
+          const timeStr = format(d, 'h:mm a');
           const tail = evt.extendedProps?.tailNumber || 'N/A';
           return (
             <li key={evt.id} className="relative flex gap-x-6 py-6 xl:static">
@@ -72,7 +79,7 @@ export default function MeetingsView({ events, selectedDate, onSelectDate }) {
                       <CalendarIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
                     </dt>
                     <dd>
-                      <time dateTime={evt.start.toISOString()}>
+                      <time dateTime={d.toISOString()}>
                         {dateStr} at {timeStr}
                       </time>
                     </dd>
@@ -98,7 +105,7 @@ export default function MeetingsView({ events, selectedDate, onSelectDate }) {
                     <Menu.Item>
                       {({ active }) => (
                         <button
-                          onClick={() => onSelectDate(evt.start)}
+                          onClick={() => onSelectDate(toDate(evt.start))}
                           className={classNames(active ? 'bg-gray-100' : '', 'block w-full px-4 py-2 text-sm text-gray-700 text-left')}
                         >
                           Go to date
@@ -119,13 +126,13 @@ export default function MeetingsView({ events, selectedDate, onSelectDate }) {
       {/* Mini month calendar */}
       <div className="mt-10 text-center lg:col-start-8 lg:col-end-13 lg:row-start-1 lg:mt-9 xl:col-start-9">
         <div className="flex items-center text-gray-900 justify-center space-x-4">
-          <button type="button" className="p-1 text-gray-400 hover:text-gray-500" onClick={() => onSelectDate(addDays(selectedDate, -30))}>
+          <button type="button" className="p-1 text-gray-400 hover:text-gray-500" onClick={() => onSelectDate(addDays(selDate, -30))}>
             <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
           </button>
           <div className="text-sm font-semibold">
-            {format(selectedDate, 'MMMM yyyy')}
+            {format(selDate, 'MMMM yyyy')}
           </div>
-          <button type="button" className="p-1 text-gray-400 hover:text-gray-500" onClick={() => onSelectDate(addDays(selectedDate, 30))}>
+          <button type="button" className="p-1 text-gray-400 hover:text-gray-500" onClick={() => onSelectDate(addDays(selDate, 30))}>
             <ChevronRightIcon className="h-5 w-5" aria-hidden="true" />
           </button>
         </div>
@@ -135,8 +142,8 @@ export default function MeetingsView({ events, selectedDate, onSelectDate }) {
         <div className="isolate mt-2 grid grid-cols-7 gap-px rounded-lg bg-gray-200 text-sm shadow-sm ring-1 ring-gray-200">
           {days.map((date, idx) => {
             const dateKey = format(date, 'yyyy-MM-dd');
-            const isCurr = isSameMonth(date, selectedDate);
-            const isSelect = isSameDay(date, selectedDate);
+            const isCurr = isSameMonth(date, selDate);
+            const isSelect = isSameDay(date, selDate);
             const hasEvents = eventsByDate[dateKey] > 0;
             return (
               <button
