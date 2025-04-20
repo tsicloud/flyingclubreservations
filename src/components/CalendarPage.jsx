@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReservationModal from './ReservationModal';
 import MonthGrid from './MonthGrid';
 import WeekView from './WeekView';
@@ -55,6 +55,7 @@ const CalendarPage = () => {
     notes: ''
   });
   const [viewMode, setViewMode] = useState('week'); // 'month' | 'week' | 'day' | 'meetings'
+  const [calendarDate, setCalendarDate] = useState(new Date());
   const { events, createOrUpdate, remove } = useReservations();
 
   const handleReservationSave = async reservation => {
