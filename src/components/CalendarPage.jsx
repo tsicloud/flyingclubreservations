@@ -119,7 +119,14 @@ const CalendarPage = () => {
         </button>
       </div>
       {viewMode === 'month' && (
-        <MonthGrid events={events} onSelectDate={date => { setCalendarDate(date); setViewMode('week'); }} />
+        <MonthGrid
+          events={events}
+          initialDate={calendarDate}
+          onSelectDate={date => {
+            setCalendarDate(date);
+            setViewMode('week');
+          }}
+        />
       )}
       {viewMode === 'week' && (
         <WeekView
@@ -157,9 +164,12 @@ const CalendarPage = () => {
       )}
       {viewMode === 'meetings' && (
         <MeetingsView
-          events={events}
+          meetings={events}
           selectedDate={calendarDate}
-          onSelectDate={date => setCalendarDate(date)}
+          onSelectDate={date => {
+            setCalendarDate(date);
+            setViewMode('day');
+          }}
         />
       )}
       <ReservationModal
