@@ -22,10 +22,11 @@ function toDate(d) {
  * - selectedDate: Date object for the currently focused date
  * - onSelectDate: function(Date) called when clicking a day in the mini calendar
  */
-export default function MeetingsView({ events, selectedDate, onSelectDate }) {
+export default function MeetingsView({ events = [], selectedDate, onSelectDate }) {
   const selDate = toDate(selectedDate);
+  const evts = Array.isArray(events) ? events : [];
   // Build upcoming meetings list (events on or after selectedDate)
-  const upcoming = events
+  const upcoming = evts
     .filter(evt => {
       const evtDate = toDate(evt.start);
       return evtDate >= selDate || isSameDay(evtDate, selDate);
@@ -50,7 +51,7 @@ export default function MeetingsView({ events, selectedDate, onSelectDate }) {
   }
 
   // Count events per day
-  const eventsByDate = events.reduce((map, evt) => {
+  const eventsByDate = evts.reduce((map, evt) => {
     const key = format(toDate(evt.start), 'yyyy-MM-dd');
     map[key] = (map[key] || 0) + 1;
     return map;
